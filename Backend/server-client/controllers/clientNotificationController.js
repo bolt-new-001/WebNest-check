@@ -3,7 +3,7 @@ import ClientNotification from '../models/ClientNotification.js';
 import nodemailer from 'nodemailer';
 
 // Email transporter setup
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,

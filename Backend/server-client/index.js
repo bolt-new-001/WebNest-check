@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
+
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/logger.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
@@ -31,7 +34,6 @@ import fileRoutes from './routes/fileRoutes.js';
 import clientNotificationRoutes from './routes/clientNotificationRoutes.js';
 import revisionRoutes from './routes/revisionRoutes.js';
 
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
