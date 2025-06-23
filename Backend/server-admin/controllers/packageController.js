@@ -27,16 +27,16 @@ export const getAllPackages = asyncHandler(async (req, res) => {
 // @route   GET /api/packages/:id
 // @access  Public
 export const getPackage = asyncHandler(async (req, res) => {
-  const package = await Package.findById(req.params.id)
+  const packageItem = await Package.findById(req.params.id)
     .populate('createdBy', 'name');
 
-  if (!package) {
+  if (!packageItem) {
     return res.status(404).json({ message: 'Package not found' });
   }
 
   res.json({
     success: true,
-    data: package
+    data: packageItem
   });
 });
 
@@ -50,11 +50,11 @@ export const createPackage = asyncHandler(async (req, res) => {
     slug: req.body.name.toLowerCase().replace(/\s+/g, '-')
   };
 
-  const package = await Package.create(packageData);
+  const packageItem = await Package.create(packageData);
 
   res.status(201).json({
     success: true,
-    data: package
+    data: packageItem
   });
 });
 
@@ -62,19 +62,19 @@ export const createPackage = asyncHandler(async (req, res) => {
 // @route   PUT /api/packages/:id
 // @access  Private (Admin)
 export const updatePackage = asyncHandler(async (req, res) => {
-  const package = await Package.findByIdAndUpdate(
+  const packageItem = await Package.findByIdAndUpdate(
     req.params.id,
     req.body,
     { new: true, runValidators: true }
   );
 
-  if (!package) {
+  if (!packageItem) {
     return res.status(404).json({ message: 'Package not found' });
   }
 
   res.json({
     success: true,
-    data: package
+    data: packageItem
   });
 });
 
@@ -82,9 +82,9 @@ export const updatePackage = asyncHandler(async (req, res) => {
 // @route   DELETE /api/packages/:id
 // @access  Private (Admin)
 export const deletePackage = asyncHandler(async (req, res) => {
-  const package = await Package.findByIdAndDelete(req.params.id);
+  const packageItem = await Package.findByIdAndDelete(req.params.id);
 
-  if (!package) {
+  if (!packageItem) {
     return res.status(404).json({ message: 'Package not found' });
   }
 
