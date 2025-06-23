@@ -1,8 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import mongoose from 'mongoose';
 
-// Import models from client service (shared database)
-const Project = mongoose.model('Project');
+import Project from '../models/Project.js';
 const ProjectAssignment = mongoose.model('ProjectAssignment');
 const Developer = mongoose.model('Developer');
 
