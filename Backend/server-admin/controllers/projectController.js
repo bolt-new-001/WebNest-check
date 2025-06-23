@@ -1,9 +1,7 @@
 import asyncHandler from 'express-async-handler';
-import mongoose from 'mongoose';
-
 import Project from '../models/Project.js';
 import ProjectAssignment from '../models/ProjectAssignment.js';
-const Developer = mongoose.model('Developer');
+import Developer from '../models/Developer.js';
 
 // @desc    Get all projects
 // @route   GET /api/projects
