@@ -351,4 +351,33 @@ export function AdminLegal() {
                 className="font-mono text-sm"
               />
               <p className="text-xs text-gray-500">
-                <AlertTriangle className="h-3
+                <AlertTriangle className="h-3 w-3 inline mr-1" />
+                Changes will not be visible to users until published
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsDocumentDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateDocument} disabled={updateDocumentMutation.isPending}>
+              {updateDocumentMutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+            {!selectedDocument?.published && (
+              <Button 
+                variant="default" 
+                onClick={() => {
+                  publishDocumentMutation.mutate(selectedDocument._id)
+                  setIsDocumentDialogOpen(false)
+                }}
+                disabled={publishDocumentMutation.isPending}
+              >
+                {publishDocumentMutation.isPending ? 'Publishing...' : 'Save & Publish'}
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
