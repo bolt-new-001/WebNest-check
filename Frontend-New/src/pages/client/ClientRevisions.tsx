@@ -271,7 +271,7 @@ export function ClientRevisions() {
                             <DropdownMenuItem>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Request
-                            </Dropdown MenuItem>
+                            </DropdownMenuItem>
                           )}
                           {revision.status === 'pending' && (
                             <DropdownMenuItem className="text-red-600">
