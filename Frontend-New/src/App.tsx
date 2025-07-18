@@ -3,8 +3,8 @@ import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/LandingPage'
 import { AuthPage } from '@/pages/AuthPage'
 import { ClientDashboard } from '@/pages/client/ClientDashboard'
-// import { DeveloperDashboard } from '@/pages/developer/DeveloperDashboard'
-// import { AdminDashboard } from '@/pages/admin/AdminDashboard'
+import { DeveloperDashboard } from '@/pages/developer/DeveloperDashboard'
+import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 function App() {
@@ -20,29 +20,30 @@ function App() {
       <Route
         path="/client/*"
         element={
-          // <ProtectedRoute allowedRoles={['client', 'premiumClient']}>
+          <ProtectedRoute allowedRoles={['client', 'premiumClient']}>
             <ClientDashboard />
-          // </ProtectedRoute>
+          </ProtectedRoute>
         }
       />
       
-      {/* <Route
+      <Route
         path="/developer/*"
         element={
           <ProtectedRoute allowedRoles={['developer', 'leadDeveloper']}>
             <DeveloperDashboard />
           </ProtectedRoute>
         }
-      /> */}
+      />
       
-      {/* <Route
+      <Route
         path="/admin/*"
         element={
           <ProtectedRoute allowedRoles={['admin', 'owner']}>
             <AdminDashboard />
           </ProtectedRoute>
         }
-      /> */}
+      />
+      
 
       {/* Redirect based on user role */}
       <Route
@@ -68,4 +69,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
