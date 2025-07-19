@@ -43,10 +43,7 @@ export const register = asyncHandler(async (req, res) => {
 // @access  Public
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-
-  // Check for user
   const user = await User.findOne({ email }).select('+password');
-
   if (user && (await user.comparePassword(password))) {
     res.json({
       success: true,
