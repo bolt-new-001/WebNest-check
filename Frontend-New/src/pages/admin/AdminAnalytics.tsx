@@ -458,7 +458,7 @@ export function AdminAnalytics() {
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm">New vs Returning</span>
                   <span className="text-sm font-medium">68% / 32%</span>
-                </div>
+                </div>  
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-blue-500 h-2 rounded-l-full" style={{ width: '68%' }} />
                 </div>

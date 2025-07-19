@@ -20,27 +20,27 @@ function App() {
       <Route
         path="/client/*"
         element={
-          <ProtectedRoute allowedRoles={['client', 'premiumClient']}>
+          // <ProtectedRoute allowedRoles={['client', 'premiumClient']}>
             <ClientDashboard />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         }
       />
       
       <Route
         path="/developer/*"
         element={
-          <ProtectedRoute allowedRoles={['developer', 'leadDeveloper']}>
+          // <ProtectedRoute allowedRoles={['developer', 'leadDeveloper']}>
             <DeveloperDashboard />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         }
       />
       
       <Route
         path="/admin/*"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'owner']}>
+          // <ProtectedRoute allowedRoles={['admin', 'owner']}>
             <AdminDashboard />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         }
       />
       
