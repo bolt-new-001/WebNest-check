@@ -52,11 +52,8 @@ export function AuthPage() {
     try {
       const response = await clientApi.login(data)
       const { user, token } = response.data.data
-      
       login(user, token)
       toast.success('Welcome back!')
-      
-      // Redirect based on user role
       if (user.role === 'admin' || user.role === 'owner') {
         navigate('/admin')
       } else if (user.role === 'developer' || user.role === 'leadDeveloper') {
@@ -189,6 +186,7 @@ export function AuthPage() {
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your password"
+                        autoComplete="current-password"
                         {...loginForm.register('password')}
                       />
                       <button
