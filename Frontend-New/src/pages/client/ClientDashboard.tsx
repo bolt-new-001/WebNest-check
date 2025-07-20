@@ -6,6 +6,7 @@ import { ClientProjectDetail } from './ClientProjectDetail'
 import { ClientFiles } from './ClientFiles'
 import { ClientNotifications } from './ClientNotifications'
 import { ClientRevisions } from './ClientRevisions'
+import { AddProject } from './AddProject'
 // import { ClientSupport } from './ClientSupport'
 // import { ClientSettings } from './ClientSettings'
 
@@ -17,6 +18,7 @@ export function ClientDashboard() {
         <Route path="/" element={<ClientOverview />} />
         <Route path="/projects" element={<ClientProjects />} />
         <Route path="/projects/:id" element={<ClientProjectDetail />} />
+        <Route path="/add-project" element={<AddProject />} />
         <Route path="/files" element={<ClientFiles />} />
         <Route path="/notifications" element={<ClientNotifications />} />
         <Route path="/revisions" element={<ClientRevisions />} />
