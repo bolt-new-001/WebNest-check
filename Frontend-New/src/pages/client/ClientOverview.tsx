@@ -10,11 +10,8 @@ import {
   Plus,
   ArrowRight,
   Bell,
-  HelpCircle ,
-  FileText ,
-  AlertTriangle,
-  CheckCircle as CheckCircleIcon
-  
+  FileText,
+  HelpCircle
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -84,7 +81,7 @@ export function ClientOverview() {
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">Welcome back! Here's what's happening with your projects.</p>
         </div>
-        <Link to="/client/projects">
+        <Link to="/client/add-project">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             New Project
