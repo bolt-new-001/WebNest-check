@@ -37,7 +37,7 @@ import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils'
 import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 
-export function ClientProjects() {
+export function ClientProjectDetail() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const queryClient = useQueryClient()
