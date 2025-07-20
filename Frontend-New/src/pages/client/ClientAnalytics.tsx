@@ -1,61 +1,29 @@
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { 
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Clock,
-  Users,
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign, 
+  Clock, 
+  Users, 
   Code2,
   BarChart3,
   PieChart,
   Sparkles,
-  ArrowRight,
-  ChevronDown,
-  ChevronUp,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  Search
+  ArrowRight
 } from 'lucide-react'
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent 
-} from '@/components/ui/card'
-import { 
-  Button, 
-  ButtonGroup 
-} from '@/components/ui/button'
-import { 
-  Badge, 
-  BadgeGroup 
-} from '@/components/ui/badge'
-import { 
-  ScrollArea 
-} from '@/components/ui/scroll-area'
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { clientApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ApexCharts } from 'react-apexcharts'
 
-export function ClientDashboardOverview() {
-  const { data: overview } = useQuery({
-    queryKey: ['client-overview'],
-    queryFn: () => clientApi.getClientOverview(),
+export function ClientAnalytics() {
+  const { data: analytics } = useQuery({
+    queryKey: ['client-analytics'],
+    queryFn: () => clientApi.getProjectAnalytics(),
   })
 
   const { data: projectStats } = useQuery({
@@ -63,14 +31,9 @@ export function ClientDashboardOverview() {
     queryFn: () => clientApi.getProjectStatistics(),
   })
 
-  const { data: teamStats } = useQuery({
-    queryKey: ['team-stats'],
-    queryFn: () => clientApi.getTeamStatistics(),
-  })
-
-  const { data: budgetStats } = useQuery({
-    queryKey: ['budget-stats'],
-    queryFn: () => clientApi.getBudgetStatistics(),
+  const { data: teamMetrics } = useQuery({
+    queryKey: ['team-metrics'],
+    queryFn: () => clientApi.getTeamPerformance(),
   })
 
   const projectTimelineData = {
@@ -129,93 +92,64 @@ export function ClientDashboardOverview() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Dashboard Overview</CardTitle>
-          <CardDescription>Your project and team performance at a glance</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="relative h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <BarChart3 className="h-8 w-8 text-white" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold">Welcome Back!</h3>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(new Date())}
-                </p>
-              </div>
-            </div>
-            <Button variant="outline">
-              <Plus className="mr-2 h-4 w-4" />
-              New Project
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">Project Completion</CardTitle>
             <Badge variant="outline" className="rounded-full bg-green-100 text-green-600">
-              {overview?.activeProjects}
+              {analytics?.projectCompletion}%
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{overview?.totalProjects}</div>
+            <div className="text-2xl font-bold">{analytics?.completedProjects} / {analytics?.totalProjects}</div>
             <p className="text-xs text-muted-foreground">
-              {overview?.projectCompletion}% completion rate
+              {analytics?.projectCompletion}% of projects completed on time
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Team Size</CardTitle>
+            <CardTitle className="text-sm font-medium">Budget Efficiency</CardTitle>
             <Badge variant="outline" className="rounded-full bg-blue-100 text-blue-600">
-              {overview?.teamSize}
+              {analytics?.budgetEfficiency}%
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{overview?.activeTeamMembers}</div>
+            <div className="text-2xl font-bold">{formatCurrency(analytics?.totalBudget)}</div>
             <p className="text-xs text-muted-foreground">
-              {overview?.teamEfficiency}% efficiency
+              {analytics?.budgetEfficiency}% budget utilization rate
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Budget</CardTitle>
+            <CardTitle className="text-sm font-medium">Team Performance</CardTitle>
             <Badge variant="outline" className="rounded-full bg-purple-100 text-purple-600">
-              {overview?.budgetEfficiency}%
+              {analytics?.teamPerformance}%
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(overview?.totalBudget)}</div>
+            <div className="text-2xl font-bold">{analytics?.activeTeamMembers}</div>
             <p className="text-xs text-muted-foreground">
-              Budget utilization
+              {analytics?.teamPerformance}% team efficiency
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Satisfaction</CardTitle>
+            <CardTitle className="text-sm font-medium">Client Satisfaction</CardTitle>
             <Badge variant="outline" className="rounded-full bg-yellow-100 text-yellow-600">
-              {overview?.satisfaction}%
+              {analytics?.satisfaction}%
             </Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{overview?.positiveReviews}</div>
+            <div className="text-2xl font-bold">{analytics?.positiveReviews}</div>
             <p className="text-xs text-muted-foreground">
-              Client satisfaction
+              {analytics?.satisfaction}% client satisfaction rate
             </p>
           </CardContent>
         </Card>
@@ -247,6 +181,32 @@ export function ClientDashboardOverview() {
         </CardContent>
       </Card>
 
+      {/* Team Performance Metrics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Performance Metrics</CardTitle>
+          <CardDescription>Key performance indicators for your team</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {teamMetrics?.metrics.map((metric) => (
+              <div key={metric.id} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-semibold">{metric.name}</h3>
+                    <p className="text-sm text-muted-foreground">{metric.description}</p>
+                  </div>
+                  <Badge variant="outline" className={`rounded-full ${metric.color}`}>
+                    {metric.value}
+                  </Badge>
+                </div>
+                <Progress value={metric.progress} className="h-2" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Recent Activity */}
       <Card>
         <CardHeader>
@@ -266,32 +226,6 @@ export function ClientDashboardOverview() {
                     {formatDate(activity.timestamp)}
                   </p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Team Performance */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Performance Metrics</CardTitle>
-          <CardDescription>Key performance indicators for your team</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {teamStats?.metrics.map((metric) => (
-              <div key={metric.id} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-semibold">{metric.name}</h3>
-                    <p className="text-sm text-muted-foreground">{metric.description}</p>
-                  </div>
-                  <Badge variant="outline" className={`rounded-full ${metric.color}`}>
-                    {metric.value}
-                  </Badge>
-                </div>
-                <Progress value={metric.progress} className="h-2" />
               </div>
             ))}
           </div>

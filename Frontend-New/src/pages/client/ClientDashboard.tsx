@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { ClientLayout } from '@/components/layouts/ClientLayout'
-import { ClientOverview } from './ClientOverview'
+import ClientDashboardOverview from './ClientDashboardOverview'
 import { ClientProjects } from './ClientProjects'
 import { ClientProjectDetail } from './ClientProjectDetail'
 import { ClientFiles } from './ClientFiles'
@@ -15,7 +15,7 @@ export function ClientDashboard() {
   return (
     <ClientLayout>
       <Routes>
-        <Route path="/" element={<ClientOverview />} />
+        <Route path="/" element={<ClientDashboardOverview />} />
         <Route path="/projects" element={<ClientProjects />} />
         <Route path="/projects/:id" element={<ClientProjectDetail />} />
         <Route path="/add-project" element={<AddProject />} />

@@ -20,9 +20,9 @@ function App() {
       <Route
         path="/client/*"
         element={
-          <ProtectedRoute allowedRoles={['client', 'premiumClient']}>
+          // <ProtectedRoute allowedRoles={['client', 'premiumClient']}>
             <ClientDashboard />
-          </ProtectedRoute>
+          //</ProtectedRoute>
         }
       />
       

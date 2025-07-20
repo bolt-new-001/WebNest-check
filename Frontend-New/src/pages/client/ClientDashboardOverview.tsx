@@ -1,22 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
 import { 
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Clock,
-  Users,
-  Code2,
   BarChart3,
-  PieChart,
-  Sparkles,
-  ArrowRight,
-  ChevronDown,
-  ChevronUp,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  Search
+  Plus
 } from 'lucide-react'
 import { 
   Card, 
@@ -25,34 +10,40 @@ import {
   CardDescription, 
   CardContent 
 } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { 
-  Button, 
-  ButtonGroup 
+  Button 
 } from '@/components/ui/button'
 import { 
-  Badge, 
-  BadgeGroup 
+  Badge 
 } from '@/components/ui/badge'
-import { 
-  ScrollArea 
-} from '@/components/ui/scroll-area'
 import { 
   Tabs, 
   TabsContent, 
   TabsList, 
   TabsTrigger 
 } from '@/components/ui/tabs'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
 import { clientApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ApexCharts } from 'react-apexcharts'
 
-export function ClientDashboardOverview() {
+interface Activity {
+  id: string
+  description: string
+  timestamp: string
+  icon: JSX.Element
+}
+
+interface Metric {
+  id: string
+  name: string
+  description: string
+  value: string
+  progress: number
+  color: string
+}
+
+export default function ClientDashboardOverview() {
   const { data: overview } = useQuery({
     queryKey: ['client-overview'],
     queryFn: () => clientApi.getClientOverview(),
@@ -255,7 +246,7 @@ export function ClientDashboardOverview() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {projectStats?.recentActivity.map((activity) => (
+            {projectStats?.recentActivity.map((activity: Activity) => (
               <div key={activity.id} className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
                   {activity.icon}
@@ -280,7 +271,7 @@ export function ClientDashboardOverview() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {teamStats?.metrics.map((metric) => (
+            {teamStats?.metrics.map((metric: Metric) => (
               <div key={metric.id} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div>
