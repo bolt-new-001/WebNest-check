@@ -34,6 +34,27 @@ api.interceptors.response.use(
 
 // ✅ Client API
 export const clientApi = {
+  // Dashboard Data
+  getClientOverview: async () => {
+    const response = await api.get('/api/client/overview')
+    return response.data
+  },
+
+  getProjectStatistics: async () => {
+    const response = await api.get('/api/client/projects/statistics')
+    return response.data
+  },
+
+  getTeamStatistics: async () => {
+    const response = await api.get('/api/client/team/statistics')
+    return response.data
+  },
+
+  getBudgetStatistics: async () => {
+    const response = await api.get('/api/client/budget/statistics')
+    return response.data
+  },
+
   // Auth
   login: async (data: { email: string; password: string }) => {
     const res = await api.post('/api/auth/login', data)

@@ -25,7 +25,12 @@ import {
 } from '@/components/ui/tabs'
 import { clientApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { ApexCharts } from 'react-apexcharts'
+// Use a simple div for now until we properly set up the chart library
+const Chart = ({ height }: { height: number }) => (
+  <div style={{ height }} className="flex items-center justify-center bg-gray-100 rounded-lg">
+    <p className="text-gray-500">Chart visualization coming soon</p>
+  </div>
+)
 
 interface Activity {
   id: string
@@ -59,64 +64,12 @@ export default function ClientDashboardOverview() {
     queryFn: () => clientApi.getTeamStatistics(),
   })
 
-  const { data: budgetStats } = useQuery({
+  useQuery({
     queryKey: ['budget-stats'],
     queryFn: () => clientApi.getBudgetStatistics(),
   })
 
-  const projectTimelineData = {
-    series: [{
-      name: 'Progress',
-      data: [25, 40, 60, 75, 100]
-    }],
-    options: {
-      chart: {
-        type: 'line',
-        height: 300,
-        toolbar: { show: false }
-      },
-      colors: ['#3b82f6'],
-      stroke: {
-        width: 3,
-        curve: 'smooth'
-      },
-      xaxis: {
-        categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']
-      },
-      yaxis: {
-        min: 0,
-        max: 100
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'dark',
-          gradientToColors: ['#60a5fa'],
-          shadeIntensity: 1,
-          type: 'horizontal',
-          opacityFrom: 0.7,
-          opacityTo: 0.9,
-          stops: [0, 100]
-        }
-      }
-    }
-  }
-
-  const budgetBreakdown = {
-    series: [44, 55, 13, 43],
-    options: {
-      chart: {
-        type: 'donut',
-        height: 300,
-        toolbar: { show: false }
-      },
-      colors: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'],
-      labels: ['Development', 'Design', 'Testing', 'Deployment'],
-      legend: {
-        position: 'bottom'
-      }
-    }
-  }
+  // Chart data will be implemented when we add proper chart library support
 
   return (
     <div className="space-y-6">
@@ -220,7 +173,7 @@ export default function ClientDashboardOverview() {
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
-            <ApexCharts options={projectTimelineData.options} series={projectTimelineData.series} />
+            <Chart height={300} />
           </div>
         </CardContent>
       </Card>
@@ -233,7 +186,7 @@ export default function ClientDashboardOverview() {
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
-            <ApexCharts options={budgetBreakdown.options} series={budgetBreakdown.series} />
+            <Chart height={300} />
           </div>
         </CardContent>
       </Card>

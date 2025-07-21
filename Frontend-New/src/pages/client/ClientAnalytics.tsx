@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { clientApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { ApexCharts } from 'react-apexcharts'
+import ReactApexChart from 'react-apexcharts'
 
 export function ClientAnalytics() {
   const { data: analytics } = useQuery({
@@ -163,7 +163,7 @@ export function ClientAnalytics() {
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
-            <ApexCharts options={projectTimelineData.options} series={projectTimelineData.series} />
+            <ReactApexChart options={projectTimelineData.options} series={projectTimelineData.series} type="line" height={300} />
           </div>
         </CardContent>
       </Card>
