@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App.tsx'
 import './index.css'
 import { Toaster } from '@/components/ui/sonner'
+import 'apexcharts'
 
 const queryClient = new QueryClient({
   defaultOptions: {

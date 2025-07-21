@@ -50,7 +50,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { clientApi } from '@/lib/api'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { ApexCharts } from 'react-apexcharts'
+import ReactApexChart from 'react-apexcharts'
 
 export function ClientDashboardOverview() {
   const { data: overview } = useQuery({
@@ -229,7 +229,7 @@ export function ClientDashboardOverview() {
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
-            <ApexCharts options={projectTimelineData.options} series={projectTimelineData.series} />
+            <ReactApexChart options={projectTimelineData.options} series={projectTimelineData.series} type="line" height={300} />
           </div>
         </CardContent>
       </Card>
