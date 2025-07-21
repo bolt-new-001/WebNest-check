@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'
 
+// Default Axios instance
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -9,7 +10,7 @@ export const api = axios.create({
   },
 })
 
-// Request interceptor to add auth token
+// Add token to headers (Request Interceptor)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) {
@@ -18,7 +19,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Response interceptor for error handling
+// Handle 401 errors (Response Interceptor)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -31,26 +32,39 @@ api.interceptors.response.use(
   }
 )
 
-// Client Service API
+// ✅ Client API
 export const clientApi = {
   // Auth
-  login: (data: { email: string; password: string }) =>
-    api.post('/api/auth/login', data),
-  register: (data: { name: string; email: string; password: string }) =>
-    api.post('/api/auth/register', data),
+  login: async (data: { email: string; password: string }) => {
+    const res = await api.post('/api/auth/login', data)
+    const { token, user } = res.data
+
+    // Store token and user
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
+
+    return res.data
+  },
+   
+
+  register: async (data: { name: string; email: string; password: string }) => {
+    const res = await api.post('/api/auth/register', data)
+    return res.data
+  },
+
   getProfile: () => api.get('/api/auth/me'),
-  
+
   // Projects
   getProjects: (params?: any) => api.get('/api/projects', { params }),
   getProject: (id: string) => api.get(`/api/projects/${id}`),
   createProject: (data: any) => api.post('/api/projects', data),
   updateProject: (id: string, data: any) => api.put(`/api/projects/${id}`, data),
-  
+
   // Activity Feed
   getProjectActivity: (projectId: string, params?: any) =>
     api.get(`/api/activity/project/${projectId}`, { params }),
   getUserActivity: (params?: any) => api.get('/api/activity/user', { params }),
-  
+
   // Files
   uploadFile: (projectId: string, formData: FormData) =>
     api.post(`/api/files/upload/${projectId}`, formData, {
@@ -59,7 +73,7 @@ export const clientApi = {
   getProjectFiles: (projectId: string, params?: any) =>
     api.get(`/api/files/project/${projectId}`, { params }),
   deleteFile: (fileId: string) => api.delete(`/api/files/${fileId}`),
-  
+
   // Notifications
   getNotifications: (params?: any) =>
     api.get('/api/notifications/client', { params }),
@@ -67,25 +81,26 @@ export const clientApi = {
     api.put(`/api/notifications/client/${id}/read`),
   markAllNotificationsRead: () =>
     api.put('/api/notifications/client/read-all'),
-  
+
   // Revisions
   createRevision: (data: any) => api.post('/api/revisions/request', data),
   getProjectRevisions: (projectId: string, params?: any) =>
     api.get(`/api/revisions/project/${projectId}`, { params }),
-  updateRevision: (id: string, data: any) => api.put(`/api/revisions/${id}`, data),
-  
+  updateRevision: (id: string, data: any) =>
+    api.put(`/api/revisions/${id}`, data),
+
   // Demo/Insights
   getClientInsights: () => api.get('/api/demo/client-insights'),
   getDashboardData: () => api.get('/api/demo/dashboard'),
-  
+
   // Preferences
   getPreferences: () => api.get('/api/preferences'),
   updatePreferences: (data: any) => api.put('/api/preferences', data),
-  
+
   // Themes
   getThemes: (params?: any) => api.get('/api/themes', { params }),
   getTheme: (id: string) => api.get(`/api/themes/${id}`),
-  
+
   // Support
   createSupportTicket: (data: any) => api.post('/api/support/tickets', data),
   getSupportTickets: (params?: any) => api.get('/api/support/tickets', { params }),
@@ -94,19 +109,19 @@ export const clientApi = {
     api.post(`/api/support/tickets/${id}/messages`, data),
 }
 
-// Developer Service API (Port 5002)
+// Developer API (port 5002)
 export const developerApi = axios.create({
   baseURL: 'http://localhost:5002',
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Admin Service API (Port 5003)
+// Admin API (port 5003)
 export const adminApi = axios.create({
   baseURL: 'http://localhost:5003',
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Add auth interceptors for developer and admin APIs
+// Attach interceptors to developer and admin APIs
 ;[developerApi, adminApi].forEach(apiInstance => {
   apiInstance.interceptors.request.use((config) => {
     const token = localStorage.getItem('token')

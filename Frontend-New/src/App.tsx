@@ -22,7 +22,7 @@ function App() {
         element={
           // <ProtectedRoute allowedRoles={['client', 'premiumClient']}>
             <ClientDashboard />
-          // </ProtectedRoute>
+          //</ProtectedRoute>
         }
       />
       
