@@ -47,26 +47,41 @@ export function AuthPage() {
     resolver: zodResolver(registerSchema),
   })
 
-  const handleLogin = async (data: LoginForm) => {
-    setIsLoading(true)
-    try {
-      const response = await clientApi.login(data)
-      const { user, token } = response.data.data
-      login(user, token)
-      toast.success('Welcome back!')
-      if (user.role === 'admin' || user.role === 'owner') {
-        navigate('/admin')
-      } else if (user.role === 'developer' || user.role === 'leadDeveloper') {
-        navigate('/developer')
-      } else {
-        navigate('/client')
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed')
-    } finally {
-      setIsLoading(false)
+ const handleLogin = async (data: LoginForm) => {
+  setIsLoading(true)
+  try {
+    console.log('Sending login data:', data)
+    const response = await clientApi.login(data)
+
+    console.log('Login response:', response);
+    console.log('response.data:', response.data);
+    console.log('response.data.data:', response.data.data);
+
+    const userData = response.data?.data
+    if (!userData || !userData.token) {
+      throw new Error('Invalid login response structure')
     }
+
+    // Pass the entire user data and token
+    login(userData, userData.token)
+    toast.success('Welcome back!')
+
+    // Use userData.role instead of user.role since state isn't updated yet
+    if (userData.role === 'admin' || userData.role === 'owner') {
+      navigate('/admin')
+    } else if (userData.role === 'developer' || userData.role === 'leadDeveloper') {
+      navigate('/developer')
+    } else {
+      navigate('/client')
+    }
+  } catch (error: any) {
+    console.error('Login failed:', error.response?.data || error)
+    toast.error(error.response?.data?.message || error.message || 'Login failed')
+  } finally {
+    setIsLoading(false)
   }
+}
+
 
   const handleRegister = async (data: RegisterForm) => {
     setIsLoading(true)
