@@ -7,9 +7,10 @@ import { ClientFiles } from './ClientFiles'
 import { ClientNotifications } from './ClientNotifications'
 import { ClientRevisions } from './ClientRevisions'
 import { AddProject } from './AddProject'
-// import { ClientSupport } from './ClientSupport'
-// import { ClientSettings } from './ClientSettings'
-
+// import { ClientResources } from './ClientResources'
+// import { ClientSupport } from './ClientSupport'}
+import { ClientSettings } from './ClientSettings'
+import { ClientProfile } from './ClientProfile'
 
 export function ClientDashboard() {
   return (
@@ -23,7 +24,8 @@ export function ClientDashboard() {
         <Route path="/notifications" element={<ClientNotifications />} />
         <Route path="/revisions" element={<ClientRevisions />} />
         {/* <Route path="/support" element={<ClientSupport />} /> */}
-        {/* <Route path="/settings" element={<ClientSettings />} /> */}
+        <Route path="/settings" element={<ClientSettings />} />
+        <Route path="/profile" element={<ClientProfile />} />
       </Routes>
     </ClientLayout>
   )

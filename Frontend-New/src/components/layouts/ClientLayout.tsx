@@ -164,6 +164,10 @@ export function ClientLayout({ children }: ClientLayoutProps) {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/client/profile')}>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/client/settings')}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings

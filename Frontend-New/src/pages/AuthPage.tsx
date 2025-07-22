@@ -57,7 +57,7 @@ export function AuthPage() {
     console.log('response.data:', response.data);
     console.log('response.data.data:', response.data.data);
 
-    const userData = response.data?.data
+    const userData = response.data
     if (!userData || !userData.token) {
       throw new Error('Invalid login response structure')
     }
