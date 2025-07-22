@@ -17,6 +17,7 @@ interface AuthState {
   login: (user: User, token: string) => void
   logout: () => void
   updateUser: (user: Partial<User>) => void
+  setUser: (user: User) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -43,6 +44,10 @@ export const useAuthStore = create<AuthState>()(
           const updatedUser = { ...currentUser, ...userData }
           set({ user: updatedUser })
         }
+      },
+
+      setUser: (user: User) => {
+        set({ user })
       },
     }),
     {

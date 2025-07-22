@@ -9,8 +9,9 @@ import { ClientRevisions } from './ClientRevisions'
 import { AddProject } from './AddProject'
 // import { ClientResources } from './ClientResources'
 // import { ClientSupport } from './ClientSupport'}
-import { ClientSettings } from './ClientSettings'
+import ClientSettings from './ClientSettings'
 import { ClientProfile } from './ClientProfile'
+import ClientPremium from './ClientPremium'
 
 export function ClientDashboard() {
   return (
@@ -26,6 +27,7 @@ export function ClientDashboard() {
         {/* <Route path="/support" element={<ClientSupport />} /> */}
         <Route path="/settings" element={<ClientSettings />} />
         <Route path="/profile" element={<ClientProfile />} />
+        <Route path="/premium" element={<ClientPremium />} />
       </Routes>
     </ClientLayout>
   )

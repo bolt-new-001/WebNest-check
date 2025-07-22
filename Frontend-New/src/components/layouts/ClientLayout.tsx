@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Code2,
-  User
+  User,
+  Crown
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -172,6 +173,12 @@ export function ClientLayout({ children }: ClientLayoutProps) {
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>
+                  {!user?.isPremium && (
+                    <DropdownMenuItem onClick={() => navigate('/client/premium')}>
+                      <Crown className="mr-2 h-4 w-4" />
+                      Upgrade to Premium
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Log out

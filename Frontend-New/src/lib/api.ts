@@ -114,6 +114,14 @@ export const clientApi = {
   getClientInsights: () => api.get('/api/demo/client-insights'),
   getDashboardData: () => api.get('/api/demo/dashboard'),
 
+  // Profile
+  updateProfile: (data: any) => api.put('/api/profile', data),
+  uploadAvatar: (formData: FormData) => api.post('/api/profile/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  deleteAccount: () => api.delete('/api/profile'),
+  upgradeToPremium: (data: { plan: string }) => api.post('/api/profile/upgrade', data),
+
   // Preferences
   getPreferences: () => api.get('/api/preferences'),
   updatePreferences: (data: any) => api.put('/api/preferences', data),
