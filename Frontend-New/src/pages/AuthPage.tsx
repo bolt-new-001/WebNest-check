@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { clientApi } from '@/lib/api'
+import { developerApi } from '@/lib/developerApi'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 
@@ -86,18 +87,37 @@ export function AuthPage() {
   const handleRegister = async (data: RegisterForm) => {
     setIsLoading(true)
     try {
-      const response = await clientApi.register({
+      console.log('Sending registration data:', data)
+      
+      // Use the appropriate API based on user type
+      const api = userType === 'developer' ? developerApi : clientApi
+      
+      const response = await api.register({
         name: data.name,
         email: data.email,
         password: data.password,
       })
-      const { user, token } = response.data.data
+
+      console.log('Registration response:', response)
       
-      login(user, token)
-      toast.success('Account created successfully!')
-      navigate('/client')
+      if (response.success && response.data) {
+        const userData = response.data
+        login(userData, userData.token)
+        toast.success('Account created successfully!')
+        
+        // Navigate based on userType
+        if (userType === 'developer') {
+          navigate('/developer')
+        } else {
+          navigate('/client')
+        }
+      } else {
+        throw new Error('Invalid response from server')
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed')
+      console.error('Registration error:', error)
+      const errorMessage = error.response?.data?.message || error.message || 'Registration failed'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }

@@ -69,8 +69,17 @@ export const clientApi = {
    
 
   register: async (data: { name: string; email: string; password: string }) => {
-    const res = await api.post('/api/auth/register', data)
-    return res.data
+    // Add user type to registration data
+    const registerData = {
+      ...data,
+      role: 'client' // Set default role for client API
+    }
+    
+    const response = await api.post('/api/auth/register', registerData)
+    console.log('Register API response:', response.data)
+    
+    // Return the entire response data which includes success and data properties
+    return response.data
   },
 
   getProfile: () => api.get('/api/auth/me'),
