@@ -2,6 +2,9 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { LandingPage } from '@/pages/LandingPage'
 import { AuthPage } from '@/pages/AuthPage'
+import { TermsOfService } from '@/pages/legal/TermsOfService'
+import { PrivacyPolicy } from '@/pages/legal/PrivacyPolicy'
+import { CookiesPolicy } from '@/pages/legal/CookiesPolicy'
 import { ClientDashboard } from '@/pages/client/ClientDashboard'
 import { DeveloperDashboard } from '@/pages/developer/DeveloperDashboard'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
@@ -15,6 +18,9 @@ function App() {
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/cookies" element={<CookiesPolicy />} />
       
       {/* Protected Routes */}
       <Route
