@@ -145,6 +145,12 @@ export const clientApi = {
   getThemes: (params?: any) => api.get('/api/themes', { params }),
   getTheme: (id: string) => api.get(`/api/themes/${id}`),
 
+  // Chat
+  getProjectChatMessages: (projectId: string, params?: any) => api.get(`/api/chat/project/${projectId}`, { params }),
+  sendChatMessage: (projectId: string, data: any) => api.post(`/api/chat/project/${projectId}/message`, data),
+  markMessageAsRead: (messageId: string) => api.put(`/api/chat/message/${messageId}/read`),
+  getUnreadMessageCount: () => api.get('/api/chat/unread-count'),
+
   // Support
   createSupportTicket: (data: any) => api.post('/api/support/tickets', data),
   getSupportTickets: (params?: any) => api.get('/api/support/tickets', { params }),

@@ -13,6 +13,7 @@ import ClientSettings from './ClientSettings'
 import { ClientProfile } from './ClientProfile'
 import ClientPremium from './ClientPremium'
 import ClientPackages from './ClientPackages'
+import { ClientChat } from './ClientChat'
 // import ClientPackageDetail from './ClientPackageDetail'
 // import  ClientPackageCustomize from './ClientPackageCustomize'
 
@@ -25,6 +26,8 @@ export function ClientDashboard() {
         <Route path="/projects/:id" element={<ClientProjectDetail />} />
         <Route path="/add-project" element={<AddProject />} />
         <Route path="/files" element={<ClientFiles />} />
+        <Route path="/chat" element={<ClientChat />} />
+        <Route path="/chat/:projectId" element={<ClientChat />} />
         <Route path="/notifications" element={<ClientNotifications />} />
         <Route path="/revisions" element={<ClientRevisions />} />
         <Route path="/support" element={<ClientSupport />} />

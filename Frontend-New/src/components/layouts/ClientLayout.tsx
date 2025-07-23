@@ -26,6 +26,7 @@ import {
   LifeBuoy,
   LogOut,
   User,
+  MessageSquare,
 } from 'lucide-react';
 
 const navigation = [
@@ -33,6 +34,7 @@ const navigation = [
   { name: 'Projects', href: '/client/projects', icon: FolderOpen },
   { name: 'Packages', href: '/client/packages', icon: Package },
   { name: 'Files', href: '/client/files', icon: Files },
+  { name: 'Chat', href: '/client/chat', icon: MessageSquare },
   { name: 'Notifications', href: '/client/notifications', icon: Bell },
   { name: 'Revisions', href: '/client/revisions', icon: History },
   { name: 'Support', href: '/client/support', icon: LifeBuoy },
