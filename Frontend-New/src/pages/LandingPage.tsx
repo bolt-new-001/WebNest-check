@@ -269,10 +269,11 @@ export function LandingPage() {
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-400">
-                <li>Help Center</li>
-                <li>Documentation</li>
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
+                <li><Link to="/help">Help Center</Link></li>
+                <li><Link to="/docs">Documentation</Link></li>
+                <li><Link to="/privacy">Privacy Policy</Link></li>
+                <li><Link to="/terms">Terms of Service</Link></li>
+                <li><Link to="/cookies">Cookies Policy</Link></li>
               </ul>
             </div>
           </div>
