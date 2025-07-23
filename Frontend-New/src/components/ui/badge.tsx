@@ -33,4 +33,14 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   )
 }
 
-export { Badge, badgeVariants }
+export interface BadgeGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+}
+
+function BadgeGroup({ className, ...props }: BadgeGroupProps) {
+  return (
+    <div className={cn("flex flex-wrap gap-2", className)} {...props} />
+  )
+}
+
+export { Badge, BadgeGroup, badgeVariants }

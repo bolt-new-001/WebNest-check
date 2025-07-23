@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import SupportTicket from '../models/SupportTicket.js';
 import { createActivityLog } from '../middleware/activityLogger.js';
+import SupportArticle from '../models/SupportArticle.js';
+import SupportFAQ from '../models/SupportFAQ.js';
 
 // @desc    Create a support ticket
 // @route   POST /api/support/tickets
@@ -91,11 +93,37 @@ export const getSupportTicket = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get support articles
+// @route   GET /api/support/articles
+// @access  Public
+export const getSupportArticles = asyncHandler(async (req, res) => {
+  const articles = await SupportArticle.find({ published: true })
+    .sort({ createdAt: -1 });
+
+  res.json({
+    success: true,
+    data: articles
+  });
+});
+
+// @desc    Get support FAQs
+// @route   GET /api/support/faqs
+// @access  Public
+export const getSupportFAQs = asyncHandler(async (req, res) => {
+  const faqs = await SupportFAQ.find({ published: true })
+    .sort({ createdAt: -1 });
+
+  res.json({
+    success: true,
+    data: faqs
+  });
+});
+
 // @desc    Add message to support ticket
 // @route   POST /api/support/tickets/:id/messages
 // @access  Private
 export const addTicketMessage = asyncHandler(async (req, res) => {
-  const { message } = req.body;
+  const { message, status } = req.body;
   const user = req.user || req.developer;
   const userType = req.user ? 'User' : 'Developer';
 

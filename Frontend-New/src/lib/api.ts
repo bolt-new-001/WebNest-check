@@ -122,6 +122,12 @@ export const clientApi = {
   deleteAccount: () => api.delete('/api/profile'),
   upgradeToPremium: (data: { plan: string }) => api.post('/api/profile/upgrade', data),
 
+  // Packages
+  getPackages: () => api.get('/api/packages'),
+  getPackage: (id: string) => api.get(`/api/packages/${id}`),
+  customizePackage: (id: string, data: any) => api.post(`/api/packages/${id}/customize`, data),
+  purchasePackage: (id: string) => api.post(`/api/packages/${id}/purchase`),
+
   // Preferences
   getPreferences: () => api.get('/api/preferences'),
   updatePreferences: (data: any) => api.put('/api/preferences', data),
