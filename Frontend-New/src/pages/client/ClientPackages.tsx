@@ -63,9 +63,12 @@ export default function ClientPackages() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { data: packages, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['packages'],
-    queryFn: () => clientApi.getPackages()
+    queryFn: async () => {
+      const response = await clientApi.getPackages();
+      return response.data; // Return the data property from the backend response
+    }
   });
 
   if (isLoading) {
@@ -124,7 +127,7 @@ export default function ClientPackages() {
 
         {/* Packages Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {packages?.data.map((pkg: any) => (
+          {data?.map((pkg: any) => (
             <Card 
               key={pkg._id} 
               className={`relative ${pkg.type === 'premium' ? 'border-blue-500 shadow-lg' : ''}`}
