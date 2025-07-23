@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import { Users, Target, Award, Rocket, Star, Code2, Globe2, Zap } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export function AboutUs() {
   const stats = [
-    { label: 'Active Users', value: '10K+' },
-    { label: 'Projects Deployed', value: '50K+' },
-    { label: 'Countries', value: '30+' },
-    { label: 'Team Members', value: '50+' },
+    { label: 'Active Users', value: '10K+', icon: Users },
+    { label: 'Projects Deployed', value: '50K+', icon: Rocket },
+    { label: 'Countries', value: '30+', icon: Globe2 },
+    { label: 'Team Members', value: '50+', icon: Users },
   ];
 
   const team = [

@@ -67,6 +67,8 @@ export function LandingPage() {
               <span className="text-2xl font-bold text-gray-900">WebNest</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
+              <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
+              <Link to="/contact" className="text-gray-600 hover:text-gray-900">Contact Us</Link>
               <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
               <a href="#testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</a>
               <a href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</a>
@@ -260,10 +262,10 @@ export function LandingPage() {
             <div>
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-gray-400">
-                <li>About Us</li>
+                <li><Link to="/about">About Us</Link></li>
                 <li>Portfolio</li>
                 <li>Careers</li>
-                <li>Contact</li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
             <div>

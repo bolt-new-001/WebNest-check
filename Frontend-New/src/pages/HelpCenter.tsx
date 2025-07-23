@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, HelpCircle, MessageCircle, Phone, Mail, FileText, ChevronRight, ExternalLink } from 'lucide-react';
+import { Search, HelpCircle, MessageCircle, Phone, Mail, FileText, ChevronRight, ExternalLink, Book, Settings, Shield, Zap, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
