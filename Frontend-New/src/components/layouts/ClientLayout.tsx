@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   LayoutDashboard,
+  FolderOpen,
   Files,
   Bell,
   Settings,
@@ -29,6 +30,7 @@ import {
 
 const navigation = [
   { name: 'Overview', href: '/client', icon: LayoutDashboard },
+  { name: 'Projects', href: '/client/projects', icon: FolderOpen },
   { name: 'Packages', href: '/client/packages', icon: Package },
   { name: 'Files', href: '/client/files', icon: Files },
   { name: 'Notifications', href: '/client/notifications', icon: Bell },

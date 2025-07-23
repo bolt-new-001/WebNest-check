@@ -63,11 +63,24 @@ export default function ClientPackages() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { data, isLoading } = useQuery({
+  // Redirect to login if not authenticated
+  if (!user) {
+    navigate('/auth');
+    return null;
+  }
+
+  const { data, isLoading, error } = useQuery({
     queryKey: ['packages'],
     queryFn: async () => {
       const response = await clientApi.getPackages();
-      return response.data; // Return the data property from the backend response
+      if (!response.success) {
+        throw new Error('Failed to fetch packages');
+      }
+      return response.data;
+    },
+    onError: (err) => {
+      console.error('Error fetching packages:', err);
+      // You might want to show an error toast here
     }
   });
 
@@ -75,6 +88,16 @@ export default function ClientPackages() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-red-500">
+          Error loading packages. Please try again later.
+        </div>
       </div>
     );
   }
