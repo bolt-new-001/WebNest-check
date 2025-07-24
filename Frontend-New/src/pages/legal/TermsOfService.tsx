@@ -6,15 +6,15 @@ export function TermsOfService() {
   const [activeSection, setActiveSection] = useState('1');
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-8 px-4 max-w-4xl bg-white rounded-2xl shadow-lg">
       <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
       
       <ScrollArea className="h-[calc(100vh-200px)]">
         <div className="space-y-8">
           <section id="1" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <Book className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <Book className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">1. Introduction</h2>
             </div>
@@ -26,8 +26,8 @@ export function TermsOfService() {
 
           <section id="2" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-full">
-                <FileText className="h-6 w-6 text-green-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <FileText className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">2. Definitions</h2>
             </div>
@@ -43,8 +43,8 @@ export function TermsOfService() {
 
           <section id="3" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <User className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <User className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">3. Account Registration</h2>
             </div>
@@ -61,8 +61,8 @@ export function TermsOfService() {
 
           <section id="4" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-red-100 rounded-full">
-                <Shield className="h-6 w-6 text-red-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <Shield className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">4. User Responsibilities</h2>
             </div>
@@ -81,8 +81,8 @@ export function TermsOfService() {
 
           <section id="5" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <TrendingUp className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <TrendingUp className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">5. Service Usage</h2>
             </div>
@@ -107,8 +107,8 @@ export function TermsOfService() {
 
           <section id="6" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-full">
-                <TrendingDown className="h-6 w-6 text-green-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <TrendingDown className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">6. Intellectual Property</h2>
             </div>
@@ -127,8 +127,8 @@ export function TermsOfService() {
 
           <section id="7" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 rounded-full">
-                <Shield className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <Shield className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">7. Privacy</h2>
             </div>

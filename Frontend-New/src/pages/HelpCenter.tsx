@@ -146,10 +146,10 @@ export function HelpCenter() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#e7e1f5] via-[#c9bce7] to-[#e7e1f5]">
       {/* Hero Section */}
       <section className="relative py-20 px-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-indigo-100/50 to-purple-50/50 rounded-3xl blur-3xl opacity-30"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#e7e1f5]/50 via-[#c9bce7]/50 to-[#e7e1f5]/50 rounded-3xl blur-3xl opacity-30"></div>
         <div className="container mx-auto relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -157,8 +157,8 @@ export function HelpCenter() {
             transition={{ duration: 0.8 }}
           >
             <div className="flex flex-col items-center justify-center space-y-4 mb-8">
-              <HelpCircle className="h-16 w-16 text-blue-600" />
-              <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
+              <HelpCircle className="h-16 w-16 text-[#8b70cd]" />
+              <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#8b70cd] to-[#aa96da] mb-6">
                 Help Center
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
@@ -216,15 +216,15 @@ export function HelpCenter() {
                 onClick={() => setActiveCategory(category.title.toLowerCase().replace(' ', '-'))}
                 className="cursor-pointer"
               >
-                <Card className="hover:shadow-lg transition-all">
+                <Card className="bg-white/80 hover:bg-white hover:shadow-lg transition-all duration-300">
                   <CardHeader>
                     <div className="flex items-center gap-4">
                       <div className={`p-3 rounded-full ${
-                        category.level === 'beginner' ? 'bg-green-100' :
-                        category.level === 'intermediate' ? 'bg-yellow-100' :
-                        'bg-red-100'
+                        category.level === 'beginner' ? 'bg-[#e7e1f5]' :
+                        category.level === 'intermediate' ? 'bg-[#c9bce7]' :
+                        'bg-[#aa96da]'
                       }`}>
-                        <category.icon className="h-6 w-6 text-blue-600" />
+                        <category.icon className="h-6 w-6 text-[#8b70cd]" />
                       </div>
                       <div>
                         <CardTitle>{category.title}</CardTitle>
@@ -283,7 +283,7 @@ export function HelpCenter() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <Card>
+                  <Card className="bg-white/80 hover:bg-white transition-colors duration-300">
                     <CardHeader>
                       <CardTitle>{article.title}</CardTitle>
                     </CardHeader>

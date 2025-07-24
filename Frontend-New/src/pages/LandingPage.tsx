@@ -57,14 +57,14 @@ export function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-[#e7e1f5] to-[#c9bce7]">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Code2 className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">WebNest</span>
+              <Code2 className="h-8 w-8 text-[#8b70cd]" />
+              <span className="text-2xl font-bold text-[#aa96da]">WebNest</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
@@ -93,7 +93,7 @@ export function LandingPage() {
           >
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
               Build Your Dream{' '}
-              <span className="text-blue-600">Website</span>
+              <span className="text-[#8b70cd]">Website</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Professional web development services that help your business grow. 
@@ -126,7 +126,7 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
+                <div className="text-3xl md:text-4xl font-bold text-[#8b70cd] mb-2">
                   {stat.value}
                 </div>
                 <div className="text-gray-600">{stat.label}</div>
@@ -158,7 +158,7 @@ export function LandingPage() {
               >
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <feature.icon className="h-12 w-12 text-blue-600 mb-4" />
+                    <feature.icon className="h-12 w-12 text-[#8b70cd] mb-4" />
                     <CardTitle>{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -213,7 +213,7 @@ export function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600 text-white px-4">
+      <section className="py-20 bg-[#8b70cd] text-white px-4">
         <div className="container mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -243,7 +243,7 @@ export function LandingPage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Code2 className="h-8 w-8 text-blue-400" />
+                <Code2 className="h-8 w-8 text-[#c9bce7]" />
                 <span className="text-2xl font-bold">WebNest</span>
               </div>
               <p className="text-gray-400">
