@@ -37,6 +37,16 @@ interface AdminLayoutProps {
   children: React.ReactNode
 }
 
+// Helper function to determine if a navigation item is active
+const isNavItemActive = (itemHref: string, currentPath: string) => {
+  if (itemHref === '/admin') {
+    // For dashboard/overview, only highlight when exactly on /admin
+    return currentPath === '/admin'
+  }
+  // For other pages, highlight when the current path starts with the item's href
+  return currentPath.startsWith(itemHref)
+}
+
 export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -80,8 +90,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href || 
-                (item.href !== '/admin' && location.pathname.startsWith(item.href))
+              const isActive = isNavItemActive(item.href, location.pathname)
               return (
                 <Link
                   key={item.name}
@@ -113,8 +122,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href || 
-                (item.href !== '/admin' && location.pathname.startsWith(item.href))
+              const isActive = isNavItemActive(item.href, location.pathname)
               return (
                 <Link
                   key={item.name}

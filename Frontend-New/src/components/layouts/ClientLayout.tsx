@@ -72,12 +72,14 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           <NavLink
             key={item.name}
             to={item.href}
-            className={({ isActive }) =>
-              `flex items-center space-x-3 rounded-lg px-3 py-2 text-sm ${
-                isActive
-                  ? 'bg-secondary'
-                  : 'hover:bg-accent'}`
-            }
+            className={({ isActive: routeIsActive }) => {
+              const isActive = item.href === '/client'
+                ? location.pathname === '/client'  // Exact match for overview
+                : location.pathname.startsWith(item.href)  // Prefix match for other pages
+              return `flex items-center space-x-3 rounded-lg px-3 py-2 text-sm ${
+                isActive ? 'bg-secondary' : 'hover:bg-accent'
+              }`
+            }}
             onClick={() => setOpen(false)}
           >
             <item.icon className="h-4 w-4" />

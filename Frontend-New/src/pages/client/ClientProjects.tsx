@@ -59,10 +59,12 @@ export function ClientProjects() {
           <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
           <p className="text-gray-600">Manage and track all your web development projects</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          New Project
-        </Button>
+        <Link to="/client/add-project">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            New Project
+          </Button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -171,10 +173,12 @@ export function ClientProjects() {
                   : 'Get started by creating your first project'}
               </p>
               {!searchQuery && statusFilter === 'all' && (
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Project
-                </Button>
+                <Link to="/client/add-project">
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Project
+                  </Button>
+                </Link>
               )}
             </div>
           )}
