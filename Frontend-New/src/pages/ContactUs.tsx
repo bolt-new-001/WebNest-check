@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Clock, MessageSquare, Loader2, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Loader2, Globe2, Building2, Clock2, Shield, Sparkles, CircleDot } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function ContactUs() {
   const [formData, setFormData] = useState({
@@ -12,8 +13,10 @@ export function ContactUs() {
     email: '',
     subject: '',
     message: '',
+    category: 'general'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,161 +54,244 @@ export function ContactUs() {
       title: 'Email',
       content: 'contact@webnest.com',
       link: 'mailto:contact@webnest.com',
+      description: 'For general inquiries and support',
+      type: 'primary'
     },
     {
       icon: Phone,
       title: 'Phone',
       content: '+1 (555) 123-4567',
       link: 'tel:+15551234567',
+      description: 'Available Mon-Fri, 9AM-5PM EST',
+      type: 'secondary'
     },
     {
       icon: MapPin,
       title: 'Address',
       content: 'Tech District, Innovation City',
       link: 'https://maps.google.com',
+      description: 'Visit our office during business hours',
+      type: 'tertiary'
+    },
+    {
+      icon: Globe2,
+      title: 'Global Support',
+      content: 'support@webnest.com',
+      link: 'mailto:support@webnest.com',
+      description: '24/7 international support',
+      type: 'primary'
+    },
+    {
+      icon: Building2,
+      title: 'Head Office',
+      content: '123 Innovation Street',
+      link: 'https://maps.google.com',
+      description: 'Main corporate headquarters',
+      type: 'secondary'
+    },
+    {
+      icon: Clock2,
+      title: 'Business Hours',
+      content: 'Mon-Fri: 9AM-5PM EST',
+      description: 'Extended support hours available',
+      type: 'tertiary'
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50">
       {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
+      <section className="relative py-20 px-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-indigo-100/50 to-purple-50/50 rounded-3xl blur-3xl opacity-30"></div>
+        <div className="container mx-auto relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-              Get in <span className="text-blue-600">Touch</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Have a question or want to work together? We'd love to hear from you.
-              Send us a message and we'll respond as soon as possible.
-            </p>
+            <div className="flex flex-col items-center justify-center space-y-4 mb-8">
+              <Shield className="h-16 w-16 text-blue-600" />
+              <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
+                Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-purple-900">Touch</span>
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Have a question or want to work together? We'd love to hear from you.
+                Send us a message and we'll respond as soon as possible.
+              </p>
+              <div className="flex gap-4">
+                <Button variant="outline" size="lg">
+                  <Sparkles className="h-4 w-4 mr-2" /> Schedule Demo
+                </Button>
+                <Button variant="outline" size="lg">
+                  <CircleDot className="h-4 w-4 mr-2" /> Contact Sales
+                </Button>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="py-20 px-4">
+      {/* Contact Information Section */}
+      <section className="py-20 px-4 bg-white">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-8 mb-16">
             {contactInfo.map((info, index) => (
               <motion.div
                 key={info.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all"
               >
-                <Card className="text-center h-full">
-                  <CardContent className="pt-6">
-                    <info.icon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">{info.title}</h3>
-                    <a
-                      href={info.link}
-                      className="text-gray-600 hover:text-blue-600 transition-colors"
-                      target={info.icon === MapPin ? '_blank' : undefined}
-                      rel={info.icon === MapPin ? 'noopener noreferrer' : undefined}
-                    >
-                      {info.content}
-                    </a>
-                  </CardContent>
-                </Card>
+                <div className="flex flex-col items-center text-center">
+                  <div className={`p-3 rounded-full mb-4 ${
+                    info.type === 'primary' ? 'bg-blue-100' :
+                    info.type === 'secondary' ? 'bg-purple-100' :
+                    'bg-gray-100'
+                  }`}>
+                    <info.icon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-1">{info.title}</h3>
+                  <p className="text-gray-600 mb-2">{info.content}</p>
+                  <p className="text-sm text-gray-500">{info.description}</p>
+                  <a
+                    href={info.link}
+                    className="text-blue-600 hover:text-blue-800 mt-2"
+                  >
+                    {info.link.includes('mailto:') ? 'Send Email' : info.link.includes('tel:') ? 'Call Now' : 'View Location'}
+                  </a>
+                </div>
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardContent className="pt-6">
+      {/* Contact Form Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Send us a Message
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                We're here to help! Whether you have a question, want to collaborate, or need support,
+                our team is ready to assist you.
+              </p>
+            </div>
+            
+            <Tabs defaultValue="general" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="general">General Inquiry</TabsTrigger>
+                <TabsTrigger value="technical">Technical Support</TabsTrigger>
+                <TabsTrigger value="sales">Sales</TabsTrigger>
+                <TabsTrigger value="partnership">Partnership</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="general">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="name"
-                        className="text-sm font-medium text-gray-900"
-                      >
-                        Name
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name
                       </label>
                       <Input
                         id="name"
                         name="name"
-                        placeholder="John Doe"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Enter your full name"
                         required
-                        className="w-full"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="email"
-                        className="text-sm font-medium text-gray-900"
-                      >
-                        Email
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
                       </label>
                       <Input
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="john@example.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
                         required
-                        className="w-full"
                       />
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="subject"
-                      className="text-sm font-medium text-gray-900"
-                    >
+                  
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
                       Subject
                     </label>
                     <Input
                       id="subject"
                       name="subject"
-                      placeholder="How can we help?"
+                      type="text"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      placeholder="Enter subject"
                       required
-                      className="w-full"
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="message"
-                      className="text-sm font-medium text-gray-900"
-                    >
-                      Message
+                  
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                      Your Message
                     </label>
                     <Textarea
                       id="message"
                       name="message"
-                      placeholder="Your message here..."
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Please describe your inquiry..."
                       required
-                      className="min-h-[150px] w-full"
+                      className="min-h-[200px]"
                     />
                   </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-4 w-4" />
-                        Send Message
-                      </>
+                  
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full"
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Sending...
+                        </span>
+                      ) : (
+                        <span>Send Message</span>
+                      )}
+                    </Button>
+                    
+                    {showSuccess && (
+                      <div className="text-green-600 text-sm">
+                        <span className="flex items-center gap-2">
+                          <Shield className="h-4 w-4" />
+                          Message sent successfully!
+                        </span>
+                      </div>
                     )}
-                  </Button>
+                  </div>
                 </form>
-              </CardContent>
-            </Card>
+              </TabsContent>
+              
+              <TabsContent value="technical">
+                {/* Technical Support form content */}
+              </TabsContent>
+              
+              <TabsContent value="sales">
+                {/* Sales form content */}
+              </TabsContent>
+              
+              <TabsContent value="partnership">
+                {/* Partnership form content */}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </section>

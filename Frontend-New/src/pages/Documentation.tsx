@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Book, Code2, Database, Layout, Lock, Settings, Server, Zap, ChevronRight } from 'lucide-react';
+import { Search, Book, Code2, Database, Layout, Lock, Settings, Server, Zap, ChevronRight, CircleDashed, CircleWavy, CircleDashed2, CircleWavy2, CircleDot, CircleDot2, Sparkles, Shield, Globe2, Building2, Clock2, Calendar, User, Award, TrendingUp, TrendingDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 export function Documentation() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeSection, setActiveSection] = useState('getting-started');
 
   const sections = [
     {
@@ -20,6 +24,10 @@ export function Documentation() {
         'Platform Overview',
         'System Requirements',
       ],
+      level: 'beginner',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 5
     },
     {
       icon: Code2,
@@ -31,6 +39,10 @@ export function Documentation() {
         'Routing Guide',
         'Performance Optimization',
       ],
+      level: 'intermediate',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 8
     },
     {
       icon: Database,
@@ -42,6 +54,10 @@ export function Documentation() {
         'Authentication Flow',
         'Error Handling',
       ],
+      level: 'intermediate',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 6
     },
     {
       icon: Layout,
@@ -53,6 +69,10 @@ export function Documentation() {
         'Data Display',
         'Navigation Elements',
       ],
+      level: 'beginner',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 7
     },
     {
       icon: Lock,
@@ -64,6 +84,10 @@ export function Documentation() {
         'Data Protection',
         'Security Best Practices',
       ],
+      level: 'advanced',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 4
     },
     {
       icon: Settings,
@@ -75,6 +99,10 @@ export function Documentation() {
         'Deployment Settings',
         'Performance Tuning',
       ],
+      level: 'intermediate',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 5
     },
     {
       icon: Server,
@@ -86,6 +114,10 @@ export function Documentation() {
         'Cloud Services',
         'Monitoring',
       ],
+      level: 'advanced',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 3
     },
     {
       icon: Zap,
@@ -97,6 +129,10 @@ export function Documentation() {
         'Caching Strategies',
         'Advanced Patterns',
       ],
+      level: 'advanced',
+      status: 'active',
+      lastUpdated: '2025-07-24',
+      contributors: 4
     },
   ];
 
@@ -127,31 +163,32 @@ export function Documentation() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50">
       {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
+      <section className="relative py-20 px-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-indigo-100/50 to-purple-50/50 rounded-3xl blur-3xl opacity-30"></div>
+        <div className="container mx-auto relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <Book className="h-16 w-16 text-blue-600 mx-auto mb-6" />
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-              WebNest <span className="text-blue-600">Documentation</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Comprehensive guides and references to help you build amazing applications.
-            </p>
-            <div className="max-w-2xl mx-auto relative">
-              <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-              <Input
-                type="search"
-                placeholder="Search documentation..."
-                className="pl-12 h-12 text-lg"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+            <div className="flex flex-col items-center justify-center space-y-4 mb-8">
+              <Shield className="h-16 w-16 text-blue-600" />
+              <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
+                Documentation
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Comprehensive guides and resources to help you build amazing web applications with WebNest.
+              </p>
+              <div className="flex gap-4">
+                <Button variant="outline" size="lg">
+                  <Sparkles className="h-4 w-4 mr-2" /> Get Started
+                </Button>
+                <Button variant="outline" size="lg">
+                  <CircleDot className="h-4 w-4 mr-2" /> View All Topics
+                </Button>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -167,27 +204,53 @@ export function Documentation() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                onClick={() => setActiveSection(section.title.toLowerCase().replace(' ', '-'))}
+                className="cursor-pointer"
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
+                <Card className="hover:shadow-lg transition-all">
                   <CardHeader>
-                    <section.icon className="h-8 w-8 text-blue-600 mb-4" />
-                    <CardTitle>{section.title}</CardTitle>
-                    <CardDescription>{section.description}</CardDescription>
+                    <div className="flex items-center gap-4">
+                      <div className={`p-3 rounded-full ${
+                        section.level === 'beginner' ? 'bg-green-100' :
+                        section.level === 'intermediate' ? 'bg-yellow-100' :
+                        'bg-red-100'
+                      }`}>
+                        <section.icon className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle>{section.title}</CardTitle>
+                        <CardDescription>
+                          <div className="flex items-center gap-2">
+                            <span>{section.description}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {section.level.toUpperCase()}
+                            </Badge>
+                          </div>
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-2">
-                      {section.topics.map((topic) => (
-                        <li key={topic}>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start text-gray-600 hover:text-blue-600"
-                          >
-                            <ChevronRight className="h-4 w-4 mr-2" />
-                            {topic}
-                          </Button>
-                        </li>
+                    <div className="space-y-2">
+                      {section.topics.map((topic, tIndex) => (
+                        <div key={topic} className="flex items-center gap-2">
+                          <ChevronRight className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-600">{topic}</span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Updated: {section.lastUpdated}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          <span>{section.contributors} contributors</span>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
