@@ -1,24 +1,88 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Shield, Book, FileText, Lock, Clock, User, TrendingUp, TrendingDown, Sparkles, CircleDashed, CircleWavy, CircleDashed2, CircleWavy2, CircleDot, CircleDot2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
+
 
 export function PrivacyPolicy() {
+  const [activeSection, setActiveSection] = useState('1');
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
-      
-      <ScrollArea className="h-[calc(100vh-200px)]">
+    <div className="container mx-auto py-8 px-4 max-w-4xl bg-white rounded-2xl shadow-lg">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-t-2xl mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <Shield className="h-8 w-8 mr-2" />
+            <h1 className="text-4xl font-bold mb-2">Privacy Policy</h1>
+            <p className="text-lg">Last Updated: July 24, 2025</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="bg-white/10 text-white">
+              <Sparkles className="h-4 w-4 mr-2" /> Version 2.0
+            </Badge>
+            <Badge variant="outline" className="bg-white/10 text-white">
+              <Clock className="h-4 w-4 mr-2" /> Effective: July 24, 2025
+            </Badge>
+          </div>
+        </div>
+      </div>
+      <ScrollArea className="h-[calc(100vh-300px)]">
         <div className="space-y-8">
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
-            <p className="text-muted-foreground mb-4">
-              At WebNest, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform and services.
-            </p>
-            <p className="text-muted-foreground">
-              Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access our platform.
-            </p>
+          {/* Table of Contents */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Table of Contents</h2>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CircleDot className="h-4 w-4 text-blue-600" />
+                <a href="#1" className="text-blue-600 hover:text-blue-800">Introduction</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <CircleDot className="h-4 w-4 text-blue-600" />
+                <a href="#2" className="text-blue-600 hover:text-blue-800">Information We Collect</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <CircleDot className="h-4 w-4 text-blue-600" />
+                <a href="#3" className="text-blue-600 hover:text-blue-800">How We Use Your Information</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <CircleDot className="h-4 w-4 text-blue-600" />
+                <a href="#4" className="text-blue-600 hover:text-blue-800">Information Sharing and Disclosure</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <CircleDot className="h-4 w-4 text-blue-600" />
+                <a href="#5" className="text-blue-600 hover:text-blue-800">Data Security</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <CircleDot className="h-4 w-4 text-blue-600" />
+                <a href="#6" className="text-blue-600 hover:text-blue-800">Your Data Protection Rights</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="space-y-8">
+          <section id="1" className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Book className="h-6 w-6 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-semibold">1. Introduction</h2>
+            </div>
+            <div className="space-y-4 text-muted-foreground">
+              <p>At WebNest, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform and services.</p>
+              <p>Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access our platform.</p>
+            </div>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">2. Information We Collect</h2>
+          <section id="2" className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-green-100 rounded-full">
+                <User className="h-6 w-6 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-semibold">2. Information We Collect</h2>
+            </div>
             <div className="space-y-4 text-muted-foreground">
               <h3 className="text-xl font-medium mb-2">Personal Information</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
@@ -40,8 +104,13 @@ export function PrivacyPolicy() {
             </div>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">3. How We Use Your Information</h2>
+          <section id="3" className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <TrendingUp className="h-6 w-6 text-yellow-600" />
+              </div>
+              <h2 className="text-2xl font-semibold">3. How We Use Your Information</h2>
+            </div>
             <div className="space-y-4 text-muted-foreground">
               <p>We use the collected information for various purposes:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
@@ -57,8 +126,13 @@ export function PrivacyPolicy() {
             </div>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">4. Information Sharing and Disclosure</h2>
+          <section id="4" className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-red-100 rounded-full">
+                <TrendingDown className="h-6 w-6 text-red-600" />
+              </div>
+              <h2 className="text-2xl font-semibold">4. Information Sharing and Disclosure</h2>
+            </div>
             <div className="space-y-4 text-muted-foreground">
               <p>We may share your information with:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
@@ -73,8 +147,13 @@ export function PrivacyPolicy() {
             </div>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">5. Data Security</h2>
+          <section id="5" className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Shield className="h-6 w-6 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-semibold">5. Data Security</h2>
+            </div>
             <div className="space-y-4 text-muted-foreground">
               <p>
                 We implement appropriate technical and organizational security measures to protect your information, including:
@@ -89,8 +168,13 @@ export function PrivacyPolicy() {
             </div>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">6. Your Data Protection Rights</h2>
+          <section id="6" className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-purple-100 rounded-full">
+                <Lock className="h-6 w-6 text-purple-600" />
+              </div>
+              <h2 className="text-2xl font-semibold">6. Your Data Protection Rights</h2>
+            </div>
             <div className="space-y-4 text-muted-foreground">
               <p>You have the right to:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
