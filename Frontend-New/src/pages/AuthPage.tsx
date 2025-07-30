@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, Code2, User, UserCog, Shield } from 'lucide-react'
+import { Eye, EyeOff, Code2, User, UserCog, Shield, Mail, Lock, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
 import { clientApi } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
@@ -47,41 +47,32 @@ export function AuthPage() {
     resolver: zodResolver(registerSchema),
   })
 
- const handleLogin = async (data: LoginForm) => {
-  setIsLoading(true)
-  try {
-    console.log('Sending login data:', data)
-    const response = await clientApi.login(data)
+  const handleLogin = async (data: LoginForm) => {
+    setIsLoading(true)
+    try {
+      const response = await clientApi.login(data)
+      const userData = response.data
+      
+      if (!userData || !userData.token) {
+        throw new Error('Invalid login response structure')
+      }
 
-    console.log('Login response:', response);
-    console.log('response.data:', response.data);
-    console.log('response.data.data:', response.data.data);
+      login(userData, userData.token)
+      toast.success('Welcome back!')
 
-    const userData = response.data
-    if (!userData || !userData.token) {
-      throw new Error('Invalid login response structure')
+      if (userData.role === 'admin' || userData.role === 'owner') {
+        navigate('/admin')
+      } else if (userData.role === 'developer' || userData.role === 'leadDeveloper') {
+        navigate('/developer')
+      } else {
+        navigate('/client')
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || 'Login failed')
+    } finally {
+      setIsLoading(false)
     }
-
-    // Pass the entire user data and token
-    login(userData, userData.token)
-    toast.success('Welcome back!')
-
-    // Use userData.role instead of user.role since state isn't updated yet
-    if (userData.role === 'admin' || userData.role === 'owner') {
-      navigate('/admin')
-    } else if (userData.role === 'developer' || userData.role === 'leadDeveloper') {
-      navigate('/developer')
-    } else {
-      navigate('/client')
-    }
-  } catch (error: any) {
-    console.error('Login failed:', error.response?.data || error)
-    toast.error(error.response?.data?.message || error.message || 'Login failed')
-  } finally {
-    setIsLoading(false)
   }
-}
-
 
   const handleRegister = async (data: RegisterForm) => {
     setIsLoading(true)
@@ -109,209 +100,224 @@ export function AuthPage() {
       title: 'Client',
       description: 'I want to create a website or hire developers',
       icon: User,
+      gradient: 'from-blue-500 to-cyan-500',
     },
     {
       id: 'developer',
       title: 'Developer',
       description: 'I want to work on projects and earn money',
       icon: UserCog,
+      gradient: 'from-purple-500 to-pink-500',
     },
     {
       id: 'admin',
       title: 'Admin',
       description: 'I manage the platform and oversee operations',
       icon: Shield,
+      gradient: 'from-red-500 to-orange-500',
     },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-soft via-white to-secondary/30 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <motion.div
+        className="absolute top-20 left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-20 right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          opacity: [0.2, 0.4, 0.2],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Code2 className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">WebNest</span>
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-center mb-8"
+        >
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img src="/logo.png" alt="WebNest Icon" className="h-8 w-8 object-cover rounded-sm" />
+            </div>
+            <span className="text-3xl font-bold text-gradient">WebNest</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome</h1>
-          <p className="text-gray-600">Sign in to your account or create a new one</p>
-        </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">Welcome</h1>
+          <p className="text-gray-600 leading-relaxed">Sign in to your account or create a new one</p>
+        </motion.div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Choose Your Role</CardTitle>
+        <Card className="shadow-soft-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl">Choose Your Role</CardTitle>
             <CardDescription>Select how you want to use WebNest</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 mb-6">
+          <CardContent className="space-y-6">
+            {/* User Type Selection */}
+            <div className="grid gap-3">
               {userTypes.map((type) => (
-                <button
+                <motion.button
                   key={type.id}
                   onClick={() => setUserType(type.id as any)}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`p-4 rounded-2xl border-2 transition-all text-left group ${
                     userType === type.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-primary bg-primary/5 shadow-soft'
+                      : 'border-neutral-200 hover:border-primary/30 hover:bg-neutral-50'
                   }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <div className="flex items-center space-x-3">
-                    <type.icon className={`h-6 w-6 ${
-                      userType === type.id ? 'text-blue-600' : 'text-gray-400'
-                    }`} />
-                    <div>
-                      <div className="font-medium">{type.title}</div>
-                      <div className="text-sm text-gray-600">{type.description}</div>
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${type.gradient} shadow-soft group-hover:scale-110 transition-transform`}>
+                      <type.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">{type.title}</div>
+                      <div className="text-sm text-gray-600 leading-relaxed">{type.description}</div>
                     </div>
                   </div>
-                </button>
+                </motion.button>
               ))}
             </div>
 
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login">Sign In</TabsTrigger>
                 <TabsTrigger value="register">Sign Up</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
-                <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                <motion.form
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={loginForm.handleSubmit(handleLogin)}
+                  className="space-y-4"
+                >
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
                     <Input
-                      id="email"
                       type="email"
                       placeholder="Enter your email"
+                      icon={<Mail className="h-4 w-4" />}
+                      error={loginForm.formState.errors.email?.message}
                       {...loginForm.register('email')}
                     />
-                    {loginForm.formState.errors.email && (
-                      <p className="text-sm text-red-600">
-                        {loginForm.formState.errors.email.message}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
                     <div className="relative">
                       <Input
-                        id="password"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your password"
+                        icon={<Lock className="h-4 w-4" />}
+                        error={loginForm.formState.errors.password?.message}
                         autoComplete="current-password"
                         {...loginForm.register('password')}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
-                    {loginForm.formState.errors.password && (
-                      <p className="text-sm text-red-600">
-                        {loginForm.formState.errors.password.message}
-                      </p>
-                    )}
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full" size="lg" loading={isLoading}>
                     {isLoading ? 'Signing In...' : 'Sign In'}
                   </Button>
-                </form>
+                </motion.form>
               </TabsContent>
 
               <TabsContent value="register">
-                <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      {...registerForm.register('name')}
-                    />
-                    {registerForm.formState.errors.name && (
-                      <p className="text-sm text-red-600">
-                        {registerForm.formState.errors.name.message}
-                      </p>
-                    )}
-                  </div>
+                <motion.form
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={registerForm.handleSubmit(handleRegister)}
+                  className="space-y-4"
+                >
+                  <Input
+                    type="text"
+                    placeholder="Enter your full name"
+                    icon={<User className="h-4 w-4" />}
+                    error={registerForm.formState.errors.name?.message}
+                    {...registerForm.register('name')}
+                  />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="register-email">Email</Label>
-                    <Input
-                      id="register-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      {...registerForm.register('email')}
-                    />
-                    {registerForm.formState.errors.email && (
-                      <p className="text-sm text-red-600">
-                        {registerForm.formState.errors.email.message}
-                      </p>
-                    )}
-                  </div>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    icon={<Mail className="h-4 w-4" />}
+                    error={registerForm.formState.errors.email?.message}
+                    {...registerForm.register('email')}
+                  />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="register-password">Password</Label>
-                    <Input
-                      id="register-password"
-                      type="password"
-                      placeholder="Create a password"
-                      {...registerForm.register('password')}
-                    />
-                    {registerForm.formState.errors.password && (
-                      <p className="text-sm text-red-600">
-                        {registerForm.formState.errors.password.message}
-                      </p>
-                    )}
-                  </div>
+                  <Input
+                    type="password"
+                    placeholder="Create a password"
+                    icon={<Lock className="h-4 w-4" />}
+                    error={registerForm.formState.errors.password?.message}
+                    {...registerForm.register('password')}
+                  />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      placeholder="Confirm your password"
-                      {...registerForm.register('confirmPassword')}
-                    />
-                    {registerForm.formState.errors.confirmPassword && (
-                      <p className="text-sm text-red-600">
-                        {registerForm.formState.errors.confirmPassword.message}
-                      </p>
-                    )}
-                  </div>
+                  <Input
+                    type="password"
+                    placeholder="Confirm your password"
+                    icon={<Lock className="h-4 w-4" />}
+                    error={registerForm.formState.errors.confirmPassword?.message}
+                    {...registerForm.register('confirmPassword')}
+                  />
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full" size="lg" variant="gradient" loading={isLoading}>
                     {isLoading ? 'Creating Account...' : 'Create Account'}
                   </Button>
-                </form>
+                </motion.form>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-8"
+        >
+          <p className="text-sm text-gray-600 leading-relaxed">
             By continuing, you agree to our{' '}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="/terms" className="text-primary hover:text-accent transition-colors underline">
               Terms of Service
             </a>{' '}
             and{' '}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="/privacy" className="text-primary hover:text-accent transition-colors underline">
               Privacy Policy
             </a>
           </p>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   )
