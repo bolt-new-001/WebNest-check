@@ -12,7 +12,7 @@ export function PrivacyPolicy() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl bg-white rounded-2xl shadow-lg">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-t-2xl mb-8">
+      <div className="bg-gradient-to-r from-[#8b70cd] to-[#aa96da] text-white p-8 rounded-t-2xl mb-8">
         <div className="flex items-center justify-between">
           <div>
             <Shield className="h-8 w-8 mr-2" />
@@ -36,28 +36,28 @@ export function PrivacyPolicy() {
             <h2 className="text-2xl font-semibold mb-4">Table of Contents</h2>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <CircleDot className="h-4 w-4 text-blue-600" />
-                <a href="#1" className="text-blue-600 hover:text-blue-800">Introduction</a>
+                <CircleDot className="h-4 w-4 text-[#8b70cd]" />
+                <a href="#1" className="text-[#8b70cd] hover:text-[#aa96da]">Introduction</a>
               </div>
               <div className="flex items-center gap-2">
                 <CircleDot className="h-4 w-4 text-blue-600" />
-                <a href="#2" className="text-blue-600 hover:text-blue-800">Information We Collect</a>
+                <a href="#2" className="text-[#8b70cd] hover:text-[#aa96da]">Information We Collect</a>
               </div>
               <div className="flex items-center gap-2">
                 <CircleDot className="h-4 w-4 text-blue-600" />
-                <a href="#3" className="text-blue-600 hover:text-blue-800">How We Use Your Information</a>
+                <a href="#3" className="text-[#8b70cd] hover:text-[#aa96da]">How We Use Your Information</a>
               </div>
               <div className="flex items-center gap-2">
                 <CircleDot className="h-4 w-4 text-blue-600" />
-                <a href="#4" className="text-blue-600 hover:text-blue-800">Information Sharing and Disclosure</a>
+                <a href="#4" className="text-[#8b70cd] hover:text-[#aa96da]">Information Sharing and Disclosure</a>
               </div>
               <div className="flex items-center gap-2">
                 <CircleDot className="h-4 w-4 text-blue-600" />
-                <a href="#5" className="text-blue-600 hover:text-blue-800">Data Security</a>
+                <a href="#5" className="text-[#8b70cd] hover:text-[#aa96da]">Data Security</a>
               </div>
               <div className="flex items-center gap-2">
                 <CircleDot className="h-4 w-4 text-blue-600" />
-                <a href="#6" className="text-blue-600 hover:text-blue-800">Your Data Protection Rights</a>
+                <a href="#6" className="text-[#8b70cd] hover:text-[#aa96da]">Your Data Protection Rights</a>
               </div>
             </div>
           </div>
@@ -106,8 +106,8 @@ export function PrivacyPolicy() {
 
           <section id="3" className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <TrendingUp className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-[#e7e1f5] rounded-full">
+                <TrendingUp className="h-6 w-6 text-[#8b70cd]" />
               </div>
               <h2 className="text-2xl font-semibold">3. How We Use Your Information</h2>
             </div>

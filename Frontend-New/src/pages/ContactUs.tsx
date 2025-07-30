@@ -99,10 +99,10 @@ export function ContactUs() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#e7e1f5] via-[#c9bce7] to-[#e7e1f5]">
       {/* Hero Section */}
       <section className="relative py-20 px-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-indigo-100/50 to-purple-50/50 rounded-3xl blur-3xl opacity-30"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#e7e1f5]/50 via-[#c9bce7]/50 to-[#e7e1f5]/50 rounded-3xl blur-3xl opacity-30"></div>
         <div className="container mx-auto relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -110,9 +110,9 @@ export function ContactUs() {
             transition={{ duration: 0.8 }}
           >
             <div className="flex flex-col items-center justify-center space-y-4 mb-8">
-              <Shield className="h-16 w-16 text-blue-600" />
-              <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
-                Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-purple-900">Touch</span>
+              <Shield className="h-16 w-16 text-[#8b70cd]" />
+              <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#8b70cd] to-[#aa96da] mb-6">
+                Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b70cd] to-[#aa96da]">Touch</span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
                 Have a question or want to work together? We'd love to hear from you.
@@ -145,18 +145,18 @@ export function ContactUs() {
               >
                 <div className="flex flex-col items-center text-center">
                   <div className={`p-3 rounded-full mb-4 ${
-                    info.type === 'primary' ? 'bg-blue-100' :
-                    info.type === 'secondary' ? 'bg-purple-100' :
+                    info.type === 'primary' ? 'bg-[#e7e1f5]' :
+                    info.type === 'secondary' ? 'bg-[#c9bce7]' :
                     'bg-gray-100'
                   }`}>
-                    <info.icon className="h-6 w-6 text-blue-600" />
+                    <info.icon className="h-6 w-6 text-[#8b70cd]" />
                   </div>
                   <h3 className="text-xl font-semibold mb-1">{info.title}</h3>
                   <p className="text-gray-600 mb-2">{info.content}</p>
                   <p className="text-sm text-gray-500">{info.description}</p>
                   <a
                     href={info.link}
-                    className="text-blue-600 hover:text-blue-800 mt-2"
+                    className="text-[#8b70cd] hover:text-[#aa96da] mt-2"
                   >
                     {info.link.includes('mailto:') ? 'Send Email' : info.link.includes('tel:') ? 'Call Now' : 'View Location'}
                   </a>
@@ -327,7 +327,7 @@ export function ContactUs() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card>
+            <Card className="bg-white/80 hover:bg-white transition-colors duration-300">
               <CardContent className="pt-6">
                 <h3 className="text-xl font-semibold mb-2">
                   What services do you offer?

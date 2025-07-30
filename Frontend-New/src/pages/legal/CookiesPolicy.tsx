@@ -37,11 +37,11 @@ export function CookiesPolicy() {
             <div className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Table of Contents</h2>
               <ul className="space-y-2">
-                <li><a href="#what-are-cookies" className="text-blue-600 hover:text-blue-800">What are Cookies?</a></li>
-                <li><a href="#types-of-cookies" className="text-blue-600 hover:text-blue-800">Types of Cookies</a></li>
-                <li><a href="#how-we-use-cookies" className="text-blue-600 hover:text-blue-800">How We Use Cookies</a></li>
-                <li><a href="#your-cookie-choices" className="text-blue-600 hover:text-blue-800">Your Cookie Choices</a></li>
-                <li><a href="#changes-to-this-policy" className="text-blue-600 hover:text-blue-800">Changes to This Policy</a></li>
+                <li><a href="#what-are-cookies" className="text-[#8b70cd] hover:text-[#aa96da]">What are Cookies?</a></li>
+                <li><a href="#types-of-cookies" className="text-[#8b70cd] hover:text-[#aa96da]">Types of Cookies</a></li>
+                <li><a href="#how-we-use-cookies" className="text-[#8b70cd] hover:text-[#aa96da]">How We Use Cookies</a></li>
+                <li><a href="#your-cookie-choices" className="text-[#8b70cd] hover:text-[#aa96da]">Your Cookie Choices</a></li>
+                <li><a href="#changes-to-this-policy" className="text-[#8b70cd] hover:text-[#aa96da]">Changes to This Policy</a></li>
               </ul>
             </div>
 
