@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Navbar } from '@/components/ui/navbar'
 import { Footer } from '@/components/ui/footer'
 
+
 export function LandingPage() {
   const features = [
     {
@@ -114,8 +115,12 @@ export function LandingPage() {
       <Navbar
         logo={
           <Link to="/" className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
-              <Code2 className="h-6 w-6 text-white" />
+            <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img 
+                src="/logo.png" 
+                alt="WebNest Icon"
+                className="h-8 w-8 object-cover rounded-sm"
+              />
             </div>
             <span className="text-2xl font-bold text-gradient">WebNest</span>
           </Link>
@@ -365,13 +370,9 @@ export function LandingPage() {
             viewport={{ once: true }}
           >
             <Badge variant="outline" className="mb-6 border-white/30 text-white">
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkles className="h-5 w-5 mr-2" />
               Ready to get started?
             </Badge>
-            
-            <h2 className="text-4xl md:text-6xl font-bold mb-8 leading-tight">
-              Ready to Start Your Project?
-            </h2>
             
             <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto opacity-90 leading-relaxed">
               Join hundreds of satisfied clients who have transformed their business 
@@ -385,10 +386,6 @@ export function LandingPage() {
                   <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Button size="xl" variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                <Globe className="mr-3 h-5 w-5" />
-                View Our Work
-              </Button>
             </div>
           </motion.div>
         </div>
@@ -398,8 +395,12 @@ export function LandingPage() {
       <Footer
         logo={
           <Link to="/" className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
-              <Code2 className="h-6 w-6 text-white" />
+            <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img 
+                src="/logo.png" 
+                alt="WebNest Icon"
+                className="h-8 w-8 object-cover rounded-sm"
+              />
             </div>
             <span className="text-2xl font-bold text-gradient">WebNest</span>
           </Link>
@@ -412,7 +413,9 @@ export function LandingPage() {
             label: "Website"
           },
           {
-            icon: <Code2 className="h-5 w-5" />,
+            icon: <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img src="/logo.png" alt="WebNest Icon" className="h-5 w-5 object-cover rounded-sm" />
+            </div>,
             href: "https://github.com/webnest",
             label: "GitHub"
           },

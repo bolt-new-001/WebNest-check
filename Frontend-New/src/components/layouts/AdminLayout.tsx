@@ -116,7 +116,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
           <div className="flex items-center h-16 px-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
-              <Code2 className="h-8 w-8 text-red-600" />
+              <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img 
+                src="/logo.png" 
+                alt="WebNest Icon"
+                className="h-8 w-8 object-cover rounded-sm"
+              />
+            </div>
               <span className="text-xl font-bold">WebNest Admin</span>
             </div>
           </div>

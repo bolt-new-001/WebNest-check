@@ -161,7 +161,7 @@ export function AuthPage() {
         >
           <div className="flex items-center justify-center space-x-3 mb-6">
             <div className="p-3 rounded-2xl bg-gradient-to-br from-primary to-accent shadow-soft">
-              <Code2 className="h-8 w-8 text-white" />
+              <img src="/logo.png" alt="WebNest Icon" className="h-8 w-8 object-cover rounded-sm" />
             </div>
             <span className="text-3xl font-bold text-gradient">WebNest</span>
           </div>
