@@ -4,7 +4,7 @@ const supportTicketSchema = new mongoose.Schema({
   ticketId: {
     type: String,
     unique: true,
-    required: true
+    default: () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,

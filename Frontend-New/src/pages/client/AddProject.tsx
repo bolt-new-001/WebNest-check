@@ -1740,7 +1740,7 @@ function BudgetPanel({ projectData, selectedPackage }: any) {
             Complete all steps for accurate pricing
           </div>
         </div>
-      </CardContent>
+      </CardContent>  
     </Card>
   )
 }

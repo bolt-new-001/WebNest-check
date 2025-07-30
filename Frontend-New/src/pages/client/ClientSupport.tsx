@@ -1,22 +1,20 @@
-import { useQuery, useMutation, useQueryClient, QueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
 import {
-  LifeBuoy,
   MessageSquare,
   Ticket,
-  BookOpen,
   Search,
   ChevronDown,
-  ChevronUp,
-  ChevronLeft,
-  ChevronRight,
   Plus,
   AlertCircle,
   Check,
   X,
   Loader2,
-  Code
+  Code,
+  DollarSign,
+  User,
+  MoreHorizontal,
+  Tag,
 } from 'lucide-react'
 import {
   Card,
@@ -25,26 +23,11 @@ import {
   CardDescription,
   CardContent
 } from '@/components/ui/card'
-import {
-  Button
-} from '@/components/ui/button'
-import {
-  Badge,
-  BadgeGroup
-} from '@/components/ui/badge'
-import {
-  Input,
-  InputGroup
-} from '@/components/ui/input'
-import {
-  ScrollArea
-} from '@/components/ui/scroll-area'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger
-} from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input, InputGroup } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,18 +42,16 @@ import {
   DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog'
+import { Label, Textarea } from '@/components/ui/form'
 import {
-  Label,
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-  Textarea
-} from '@/components/ui/form'
+} from "@/components/ui/select"
 import { clientApi } from '@/lib/api'
 import { useState, useEffect } from 'react'
-import { format } from 'date-fns'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,10 +88,7 @@ interface FAQ {
 }
 
 export function ClientSupport() {
-  const [selectedTab, setSelectedTab] = useState('tickets')
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTicket, setSelectedTicket] = useState<string | null>(null)
-  const [selectedArticle, setSelectedArticle] = useState<string | null>(null)
   const [isCreatingTicket, setIsCreatingTicket] = useState(false)
 
   const { 
@@ -119,12 +97,12 @@ export function ClientSupport() {
     error: ticketsError
   } = useQuery<Ticket[]>({
     queryKey: ['tickets'],
-    queryFn: () => clientApi.getSupportTickets(),
+    queryFn: async () => {
+      const response = await clientApi.getSupportTickets();
+      return response.data;
+    },
     retry: 1,
     staleTime: 1000 * 60 * 5, // 5 minutes
-    onError: (error) => {
-      toast.error('Error loading tickets: ' + (error instanceof Error ? error.message : 'Unknown error'))
-    }
   })
 
   useEffect(() => {
@@ -134,42 +112,40 @@ export function ClientSupport() {
     }
   }, [ticketsError])
 
-  const { 
-    data: articles,
-    isLoading: articlesLoading,
-    error: articlesError
-  } = useQuery<Article[]>({
-    queryKey: ['support-articles'],
-    queryFn: () => Promise.resolve([]),
-    retry: 1,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    onError: (error) => {
-      toast.error('Error loading articles: ' + (error instanceof Error ? error.message : 'Unknown error'))
-    }
-  })
+  interface TicketFormData {
+    subject: string;
+    description: string;
+    category: string;
+    priority: string;
+  }
 
-  const { 
-    data: faqs,
-    isLoading: faqsLoading,
-    error: faqsError
-  } = useQuery<FAQ[]>({
-    queryKey: ['support-faqs'],
-    queryFn: () => Promise.resolve([]),
-    retry: 1,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    onError: (error) => {
-      toast.error('Error loading FAQs: ' + (error instanceof Error ? error.message : 'Unknown error'))
-    }
-  })
-
-  const createTicketMutation = useMutation({
-    mutationFn: (data) => clientApi.createSupportTicket(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] })
-      setIsCreatingTicket(false)
+  const createTicketMutation = useMutation<any, Error, TicketFormData>({
+    mutationKey: ['createTicket'],
+    mutationFn: async (data: TicketFormData) => {
+      try {
+        const response = await clientApi.createSupportTicket(data);
+        return response.data;
+      } catch (error: any) {
+        // Check if it's an auth error
+        if (error.response?.status === 401) {
+          throw new Error('Please log in to create a support ticket');
+        }
+        // Get the specific error message from the server if available
+        const message = error.response?.data?.message || error.message || 'Failed to create ticket';
+        throw new Error(message);
+      }
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      setIsCreatingTicket(false);
+      toast.success('Ticket created successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+      console.error('Error creating ticket:', error);
+    }
   })
-
+  
   useEffect(() => {
     if (createTicketMutation.isError) {
       console.error('Error creating ticket:', createTicketMutation.error)
@@ -216,17 +192,6 @@ export function ClientSupport() {
       escalated: { color: 'bg-red-500', text: 'Escalated' }
     }
     return statusMap[status] || statusMap['open']
-  }
-
-  const getArticleCategory = (category: string) => {
-    const categoryMap: Record<string, { color: string; text: string }> = {
-      general: { color: 'bg-blue-500', text: 'General' },
-      technical: { color: 'bg-purple-500', text: 'Technical' },
-      billing: { color: 'bg-green-500', text: 'Billing' },
-      account: { color: 'bg-yellow-500', text: 'Account' },
-      other: { color: 'bg-gray-500', text: 'Other' }
-    }
-    return categoryMap[category] || categoryMap['other']
   }
 
   const formatDistanceToNow = (date: Date): string => {
@@ -293,11 +258,12 @@ export function ClientSupport() {
             </DialogHeader>
             <form onSubmit={(e) => {
               e.preventDefault();
+              const form = e.currentTarget as HTMLFormElement;
               const formData = {
-                subject: e.currentTarget.subject.value,
-                description: e.currentTarget.description.value,
-                category: e.currentTarget.category.value,
-                priority: e.currentTarget.priority.value
+                subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
+                description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
+                category: (form.elements.namedItem('category') as HTMLSelectElement).value,
+                priority: (form.elements.namedItem('priority') as HTMLSelectElement).value
               };
               createTicketMutation.mutate(formData);
             }}>
@@ -329,34 +295,34 @@ export function ClientSupport() {
                   <Label htmlFor="category" className="text-sm font-medium">
                     Category
                   </Label>
-                  <Select>
-                    <SelectTrigger>
+                  <Select name="category" defaultValue="technical">
+                    <SelectTrigger id="category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="technical">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <Code className="h-4 w-4" />
-                          Technical Issue
-                        </div>
+                          <span>Technical Issue</span>
+                        </span>
                       </SelectItem>
                       <SelectItem value="billing">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4" />
-                          Billing
-                        </div>
+                          <span>Billing</span>
+                        </span>
                       </SelectItem>
                       <SelectItem value="account">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <User className="h-4 w-4" />
-                          Account
-                        </div>
+                          <span>Account</span>
+                        </span>
                       </SelectItem>
                       <SelectItem value="other">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <MoreHorizontal className="h-4 w-4" />
-                          Other
-                        </div>
+                          <span>Other</span>
+                        </span>
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -365,34 +331,34 @@ export function ClientSupport() {
                   <Label htmlFor="priority" className="text-sm font-medium">
                     Priority
                   </Label>
-                  <Select>
-                    <SelectTrigger>
+                  <Select name="priority" defaultValue="low">
+                    <SelectTrigger id="priority">
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="low">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <Tag className="h-4 w-4 text-green-500" />
-                          Low
-                        </div>
+                          <span>Low</span>
+                        </span>
                       </SelectItem>
                       <SelectItem value="medium">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <Tag className="h-4 w-4 text-yellow-500" />
-                          Medium
-                        </div>
+                          <span>Medium</span>
+                        </span>
                       </SelectItem>
                       <SelectItem value="high">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <Tag className="h-4 w-4 text-orange-500" />
-                          High
-                        </div>
+                          <span>High</span>
+                        </span>
                       </SelectItem>
                       <SelectItem value="urgent">
-                        <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <Tag className="h-4 w-4 text-red-500" />
-                          Urgent
-                        </div>
+                          <span>Urgent</span>
+                        </span>
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -401,9 +367,9 @@ export function ClientSupport() {
               <DialogFooter>
                 <Button
                   type="submit"
-                  disabled={createTicketMutation.isLoading}
+                  disabled={createTicketMutation.status === 'pending'}
                 >
-                  {createTicketMutation.isLoading ? (
+                  {createTicketMutation.status === 'pending' ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Creating...
@@ -469,7 +435,7 @@ export function ClientSupport() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-[160px]">
-                            <DropdownMenuItem onClick={() => setSelectedTicket(ticket.id)}>
+                            <DropdownMenuItem>
                               <MessageSquare className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
@@ -607,22 +573,4 @@ export function ClientSupport() {
     </div>
   )
 }
-const formatDistanceToNow = (date) => {
-  const now = new Date()
-  const diff = now - date
 
-  const minute = 60 * 1000
-  const hour = minute * 60
-  const day = hour * 24
-  const week = day * 7
-  const month = day * 30
-  const year = day * 365
-
-  if (diff < minute) return 'just now'
-  if (diff < hour) return Math.floor(diff / minute) + ' minutes ago'
-  if (diff < day) return Math.floor(diff / hour) + ' hours ago'
-  if (diff < week) return Math.floor(diff / day) + ' days ago'
-  if (diff < month) return Math.floor(diff / week) + ' weeks ago'
-  if (diff < year) return Math.floor(diff / month) + ' months ago'
-  return Math.floor(diff / year) + ' years ago'
-}
