@@ -104,7 +104,7 @@ export function WebDevelopment() {
           { title: 'About', href: '/about' },
           { title: 'Contact', href: '/contact' },
           { title: 'Help', href: '/help' },
-          { title: 'Services', href: '/services' },
+          { title: 'WebDevelopment', href: '/services/web' },
         ]}
         actions={
           <>

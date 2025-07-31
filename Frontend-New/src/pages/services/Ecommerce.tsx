@@ -15,7 +15,7 @@ export function Ecommerce () {
         { title: 'About', href: '/about' },
         { title: 'Contact', href: '/contact' },
         { title: 'Help', href: '/help' },
-        { title: 'Documentation', href: '/doc' },
+        { title: 'Ecommerce', href: '/services/ecommerce' },
     ]
 
     const footerSections = [

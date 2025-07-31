@@ -15,7 +15,7 @@ export function MobileApps () {
         { title: 'About', href: '/about' },
         { title: 'Contact', href: '/contact' },
         { title: 'Help', href: '/help' },
-        { title: 'Documentation', href: '/doc' },
+        { title: 'MobileApps', href: '/services/mobile' },
     ]
 
     const footerSections = [
