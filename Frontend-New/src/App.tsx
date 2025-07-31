@@ -9,6 +9,14 @@ import { ContactUs } from '@/pages/ContactUs'
 import { TermsOfService } from '@/pages/legal/TermsOfService'
 import { PrivacyPolicy } from '@/pages/legal/PrivacyPolicy'
 import { CookiesPolicy } from '@/pages/legal/CookiesPolicy'
+
+// Services Pages
+import { WebDevelopment } from '@/pages/services/WebDevelopment'
+import { MobileApps } from '@/pages/services/MobileApps'
+import { Ecommerce } from '@/pages/services/Ecommerce'
+
+
+//Main Dashboard Pages
 import { ClientDashboard } from '@/pages/client/ClientDashboard'
 import { DeveloperDashboard } from '@/pages/developer/DeveloperDashboard'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
@@ -29,6 +37,11 @@ function App() {
       <Route path="/help" element={<HelpCenter />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/contact" element={<ContactUs />} />
+
+      <Route path="/services/web" element={<WebDevelopment />} />
+      <Route path="/services/mobile" element={<MobileApps />} />
+      <Route path="/services/ecommerce" element={<Ecommerce />} />
+      
       
       {/* Protected Routes */}
       <Route
