@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Calendar, Clock, Users, Phone, Mail, CheckCircle, Shield, Globe, TrendingUp, Sparkles, Award, BarChart2, Settings, Clock2, MapPin, CalendarDays, Clock, Clock12, Clock9, Clock3, Clock6, Clock90, Clock180, Clock270, Clock30, Clock45, Clock60, Clock75, Clock105, Clock120, Clock135, Clock150, Clock165, Clock180, Clock195, Clock210, Clock225, Clock240, Clock255, Clock270, Clock285, Clock300, Clock315, Clock330, Clock345 } from 'lucide-react';
+import { ArrowRight, Calendar, Rocket, Users, Phone, Mail, CheckCircle, Shield, Globe, TrendingUp, Sparkles, Award, BarChart2, Settings, Clock2, MapPin, CalendarDays, Clock, Clock12, Clock9, Clock3, Clock6, Clock90, Clock30, Clock45, Clock60, Clock75, Clock105, Clock120, Clock135, Clock150, Clock165, Clock180, Clock195, Clock210, Clock225, Clock240, Clock255, Clock270, Clock285, Clock300, Clock315, Clock330, Clock345 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Navbar } from '@/components/ui/navbar';
 import { Footer } from '@/components/ui/footer';
 import { Link } from 'react-router-dom';
 
-const Consulting = () => {
+export function Consulting () {
   const navItems = [
     { title: 'Home', href: '/' },
     { title: 'About', href: '/about' },
@@ -340,11 +340,9 @@ const services = [
   },
   {
     title: 'Technical Training',
-    description: 'Customized training programs to enhance your team's technical capabilities.',
+    description: 'Customized training programs to enhance your team\'s technical capabilities.',
     icon: Users,
     color: 'text-gray-600',
     bgColor: 'bg-gray-100'
   },
 ];
-
-export default Consulting;

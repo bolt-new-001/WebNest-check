@@ -14,6 +14,7 @@ import { CookiesPolicy } from '@/pages/legal/CookiesPolicy'
 import { WebDevelopment } from '@/pages/services/WebDevelopment'
 import { MobileApps } from '@/pages/services/MobileApps'
 import { Ecommerce } from '@/pages/services/Ecommerce'
+import { Consulting } from '@/pages/services/Consulting'
 
 
 //Main Dashboard Pages
@@ -41,6 +42,7 @@ function App() {
       <Route path="/services/web" element={<WebDevelopment />} />
       <Route path="/services/mobile" element={<MobileApps />} />
       <Route path="/services/ecommerce" element={<Ecommerce />} />
+      <Route path="/services/consulting" element={<Consulting />} />
       
       
       {/* Protected Routes */}
