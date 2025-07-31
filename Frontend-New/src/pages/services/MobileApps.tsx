@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Phone, Tablet, Code, Rocket, Users, Shield, BarChart2, Database, Cloud, Settings, Gift, Clock } from 'lucide-react';
+import { Phone, Tablet, Code, Rocket, Users, Shield, BarChart2, Database, Cloud, Settings, Gift, Clock, Globe, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,11 +7,78 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Navbar } from '@/components/ui/navbar';
 import { Footer } from '@/components/ui/footer';
+import { Link } from 'react-router-dom';
 
-const MobileApps = () => {
+export function MobileApps () {
+    const navItems = [
+        { title: 'Home', href: '/' },
+        { title: 'About', href: '/about' },
+        { title: 'Contact', href: '/contact' },
+        { title: 'Help', href: '/help' },
+        { title: 'Documentation', href: '/doc' },
+    ]
+
+    const footerSections = [
+        {
+          title: 'Services',
+          links: [
+            { title: 'Web Development', href: '/services/web' },
+            { title: 'E-commerce', href: '/services/ecommerce' },
+            { title: 'Mobile Apps', href: '/services/mobile' },
+            { title: 'Consulting', href: '/services/consulting' },
+          ]
+        },
+        {
+          title: 'Company',
+          links: [
+            { title: 'About Us', href: '/about' },
+            { title: 'Portfolio', href: '/portfolio' },
+            { title: 'Careers', href: '/careers' },
+            { title: 'Contact', href: '/contact' },
+          ]
+        },
+        {
+          title: 'Support',
+          links: [
+            { title: 'Help Center', href: '/help' },
+            { title: 'Documentation', href: '/doc' },
+            { title: 'Privacy Policy', href: '/privacy' },
+            { title: 'Terms of Service', href: '/terms' },
+          ]
+        },
+    ]
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <Navbar />
+      <Navbar
+        logo={
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img 
+                src="/logo.png" 
+                alt="WebNest Icon"
+                className="h-8 w-8 object-cover rounded-sm"
+              />
+            </div>
+            <span className="text-2xl font-bold text-gradient">WebNest</span>
+          </Link>
+        }
+        items={navItems}
+        actions={
+          <>
+            <Link to="/auth">
+              <Button variant="ghost" size="sm">Sign In</Button>
+            </Link>
+            <Link to="/auth">
+              <Button variant="gradient" size="sm">
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </>
+        }
+      />
       
       {/* Hero Section */}
       <div className="relative overflow-hidden">
@@ -112,7 +179,37 @@ const MobileApps = () => {
         </div>
       </div>
 
-      <Footer />
+      {/* Footer */}
+      <Footer
+        logo={
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img 
+                src="/logo.png" 
+                alt="WebNest Icon"
+                className="h-8 w-8 object-cover rounded-sm"
+              />
+            </div>
+            <span className="text-2xl font-bold text-gradient">WebNest</span>
+          </Link>
+        }
+        sections={footerSections}
+        social={[
+          {
+            icon: <Globe className="h-5 w-5" />,
+            href: "https://webnest.netlify.app",
+            label: "Website"
+          },
+          {
+            icon: <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img src="/logo.png" alt="WebNest Icon" className="h-5 w-5 object-cover rounded-sm" />
+            </div>,
+            href: "https://github.com/webnestpro",
+            label: "GitHub"
+          },
+        ]}
+      />
+
     </div>
   );
 };
