@@ -273,10 +273,17 @@ export function AddProject() {
 
   useEffect(() => {
     calculateBudget()
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [currentStep, projectData])
+    // Improved scroll behavior
+    const timer = setTimeout(() => {
+      if (scrollRef.current) {
+        window.scrollTo({
+          top: scrollRef.current.offsetTop - 100,
+          behavior: 'smooth'
+        })
+      }
+    }, 100) // Small delay to ensure content is rendered
+    return () => clearTimeout(timer)
+  }, [currentStep])
 
   useEffect(() => {
     setShowPackages(projectData.industry === 'student')
@@ -362,7 +369,29 @@ export function AddProject() {
     }
   }
 
+  const validateStep = (step: number) => {
+    switch(step) {
+      case 1:
+        return !!projectData.projectName && !!projectData.description;
+      case 2:
+        return !!projectData.type;
+      case 3:
+        return !!projectData.industry;
+      case 4:
+        return projectData.features.length > 0;
+      case 5:
+        return projectData.teamRoles.length > 0;
+      default:
+        return true;
+    }
+  }
+
   const handleNext = () => {
+    if (!validateStep(currentStep)) {
+      toast.error('Please complete all required fields before proceeding');
+      return;
+    }
+    
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1)
     }
@@ -376,15 +405,58 @@ export function AddProject() {
 
   const handleSubmit = async () => {
     try {
-      await clientApi.createProject({
-        title: projectData.projectName || `${projectData.type} for ${projectData.industry}`,
+      // Form validation
+      if (!projectData.projectName) {
+        toast.error('Project name is required');
+        return;
+      }
+      if (!projectData.type) {
+        toast.error('Project type is required');
+        return;
+      }
+      if (!projectData.industry) {
+        toast.error('Industry is required');
+        return;
+      }
+
+      // Transform features into required format
+      const formattedFeatures = projectData.features.map(featureId => {
+        const feature = features.find(f => f.id === featureId);
+        return {
+          id: featureId,
+          name: feature?.title || '',
+          description: feature?.description || '',
+          price: feature?.price || 0
+        };
+      });
+
+      // Validate required fields according to backend schema
+      if (projectData.budget.inr < 1000) {
+        toast.error('Minimum budget should be ₹1,000');
+        return;
+      }
+
+      const validProjectTypes = ['website', 'ecommerce', 'webapp', 'portfolio', 'landing', 'custom'];
+      if (!validProjectTypes.includes(projectData.type)) {
+        toast.error('Invalid project type selected');
+        return;
+      }
+
+      const response = await clientApi.createProject({
+        title: projectData.projectName,
         description: projectData.description || `Custom ${projectData.type} with ${projectData.features.length} features`,
-        projectType: projectData.type,
-        budget: projectData.budget.inr,
-        features: projectData.features,
-        timeline: projectData.timeline,
-        customRequirements: {
-          industry: projectData.industry,
+        projectType: projectData.type, // Changed from type to projectType
+        budget: projectData.budget.inr, // Changed from object to number
+        selectedTheme: projectData.theme || null,
+        features: formattedFeatures,
+        priority: projectData.priorityLevel?.toLowerCase() || 'medium',
+        timeline: {
+          estimatedDays: projectData.timeline
+        },
+        status: 'pending',
+        industry: projectData.industry,
+        requirements: {
+          targetAudience: projectData.targetAudience,
           teamRoles: projectData.teamRoles,
           addOns: projectData.addOns,
           theme: projectData.theme,
@@ -402,10 +474,25 @@ export function AddProject() {
         }
       })
 
-      toast.success('Project submitted successfully!')
-      navigate('/client/projects')
-    } catch (error) {
-      toast.error('Failed to submit project')
+      if (response.status === 201 || response.status === 200) {
+        toast.success('Project submitted successfully!')
+        navigate('/client/projects')
+      } else {
+        throw new Error('Failed to create project');
+      }
+    } catch (error: any) {
+      console.error('Project submission error:', error);
+      toast.error(error.response?.data?.message || 'Failed to submit project. Please try again.')
+      
+      // Handle specific error cases
+      if (error.response?.status === 400) {
+        toast.error('Invalid project data. Please check all required fields.');
+      } else if (error.response?.status === 401) {
+        toast.error('Please log in again to submit your project.');
+        navigate('/auth');
+      } else if (error.response?.status === 404) {
+        toast.error('Project creation service is currently unavailable.');
+      }
     }
   }
 
