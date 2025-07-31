@@ -1,10 +1,11 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Shield, Book, FileText, Lock, Clock, User, TrendingUp, TrendingDown, Sparkles, CircleDashed, CircleWavy, CircleDashed2, CircleWavy2, CircleDot, CircleDot2, ArrowRight } from 'lucide-react';
+import { Shield, Book, FileText, Lock, Clock, User, TrendingUp, TrendingDown, Sparkles, CircleDashed, CircleWavy, CircleDashed2, CircleWavy2, CircleDot, CircleDot2, ArrowRight, Globe } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Navbar } from '@/components/ui/navbar'
+import { Footer } from '@/components/ui/footer'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 
@@ -18,6 +19,36 @@ export function PrivacyPolicy() {
     { title: 'Contact', href: '/contact' },
     { title: 'Help', href: '/help' },
     { title: 'Privacy Policy', href: '/privacy' },
+  ]
+
+  const footerSections = [
+    {
+      title: 'Services',
+      links: [
+        { title: 'Web Development', href: '/services/web' },
+        { title: 'E-commerce', href: '/services/ecommerce' },
+        { title: 'Mobile Apps', href: '/services/mobile' },
+        { title: 'Consulting', href: '/services/consulting' },
+      ]
+    },
+    {
+      title: 'Company',
+      links: [
+        { title: 'About Us', href: '/about' },
+        { title: 'Portfolio', href: '/portfolio' },
+        { title: 'Careers', href: '/careers' },
+        { title: 'Contact', href: '/contact' },
+      ]
+    },
+    {
+      title: 'Support',
+      links: [
+        { title: 'Help Center', href: '/help' },
+        { title: 'Documentation', href: '/doc' },
+        { title: 'Privacy Policy', href: '/privacy' },
+        { title: 'Terms of Service', href: '/terms' },
+      ]
+    },
   ]
 
   return (
@@ -288,6 +319,38 @@ export function PrivacyPolicy() {
           </div>
         </ScrollArea>
       </div>
+
+      {/* Footer */}
+      <Footer
+        logo={
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img 
+                src="/logo.png" 
+                alt="WebNest Icon"
+                className="h-8 w-8 object-cover rounded-sm"
+              />
+            </div>
+            <span className="text-2xl font-bold text-gradient">WebNest</span>
+          </Link>
+        }
+        sections={footerSections}
+        social={[
+          {
+            icon: <Globe className="h-5 w-5" />,
+            href: "https://webnest.netlify.app",
+            label: "Website"
+          },
+          {
+            icon: <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img src="/logo.png" alt="WebNest Icon" className="h-5 w-5 object-cover rounded-sm" />
+            </div>,
+            href: "https://github.com/webnestpro",
+            label: "GitHub"
+          },
+        ]}
+      />
+      
     </div>
   );
 }
