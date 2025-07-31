@@ -81,14 +81,38 @@ export function AuthPage() {
         name: data.name,
         email: data.email,
         password: data.password,
+        role: userType // Include the selected role
       })
-      const { user, token } = response.data.data
       
-      login(user, token)
+      // The user data is directly in response.data
+      const userData = response.data;
+      
+      if (!userData || !userData.token) {
+        throw new Error('Invalid registration response');
+      }
+
+      // Login with the user data and token
+      login(userData, userData.token)
+      
       toast.success('Account created successfully!')
-      navigate('/client')
+      
+      // Navigate based on the user's role
+      switch(userData.role) {
+        case 'admin':
+          navigate('/admin');
+          break;
+        case 'developer':
+          navigate('/developer');
+          break;
+        default:
+          navigate('/client');
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed')
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         'Registration failed. Please try again.';
+      toast.error(errorMessage)
+      console.error('Registration error:', error);
     } finally {
       setIsLoading(false)
     }
