@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Loader2, Globe2, Building2, Clock2, Shield, Sparkles, CircleDot, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Loader2, Globe2, Building2, Clock2, Shield, Sparkles, CircleDot, ArrowRight, Globe } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Navbar } from '@/components/ui/navbar';
+import { Footer } from '@/components/ui/footer';
 import { Link } from 'react-router-dom';
 
 export function ContactUs() {
@@ -56,6 +57,36 @@ export function ContactUs() {
     { title: 'Contact', href: '/contact' },
     { title: 'Help', href: '/help' },
     { title: 'Documentation', href: '/doc' },
+  ]
+
+  const footerSections = [
+    {
+      title: 'Services',
+      links: [
+        { title: 'Web Development', href: '/services/web' },
+        { title: 'E-commerce', href: '/services/ecommerce' },
+        { title: 'Mobile Apps', href: '/services/mobile' },
+        { title: 'Consulting', href: '/services/consulting' },
+      ]
+    },
+    {
+      title: 'Company',
+      links: [
+        { title: 'About Us', href: '/about' },
+        { title: 'Portfolio', href: '/portfolio' },
+        { title: 'Careers', href: '/careers' },
+        { title: 'Contact', href: '/contact' },
+      ]
+    },
+    {
+      title: 'Support',
+      links: [
+        { title: 'Help Center', href: '/help' },
+        { title: 'Documentation', href: '/doc' },
+        { title: 'Privacy Policy', href: '/privacy' },
+        { title: 'Terms of Service', href: '/terms' },
+      ]
+    },
   ]
 
   const contactInfo = [
@@ -422,6 +453,37 @@ export function ContactUs() {
           </div>
         </section>
       </div>
+
+      {/* Footer */}
+      <Footer
+        logo={
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img 
+                src="/logo.png" 
+                alt="WebNest Icon"
+                className="h-8 w-8 object-cover rounded-sm"
+              />
+            </div>
+            <span className="text-2xl font-bold text-gradient">WebNest</span>
+          </Link>
+        }
+        sections={footerSections}
+        social={[
+          {
+            icon: <Globe className="h-5 w-5" />,
+            href: "https://webnest.netlify.app",
+            label: "Website"
+          },
+          {
+            icon: <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
+              <img src="/logo.png" alt="WebNest Icon" className="h-5 w-5 object-cover rounded-sm" />
+            </div>,
+            href: "https://github.com/webnestpro",
+            label: "GitHub"
+          },
+        ]}
+      />
     </div>
   );
 }
