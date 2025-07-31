@@ -409,14 +409,14 @@ export function LandingPage() {
         social={[
           {
             icon: <Globe className="h-5 w-5" />,
-            href: "https://webnest.com",
+            href: "https://webnest.netlify.app",
             label: "Website"
           },
           {
             icon: <div className="p-1 rounded-xl bg-gradient-to-br from-primary to-accent shadow-soft">
               <img src="/logo.png" alt="WebNest Icon" className="h-5 w-5 object-cover rounded-sm" />
             </div>,
-            href: "https://github.com/webnest",
+            href: "https://github.com/webnestpro",
             label: "GitHub"
           },
         ]}
