@@ -6,6 +6,8 @@ import { Documentation } from '@/pages/Documentation'
 import { HelpCenter } from '@/pages/HelpCenter'
 import { AboutUs } from '@/pages/AboutUs'
 import { ContactUs } from '@/pages/ContactUs'
+import { Careers } from '@/pages/Careers'
+
 import { TermsOfService } from '@/pages/legal/TermsOfService'
 import { PrivacyPolicy } from '@/pages/legal/PrivacyPolicy'
 import { CookiesPolicy } from '@/pages/legal/CookiesPolicy'
@@ -38,6 +40,7 @@ function App() {
       <Route path="/help" element={<HelpCenter />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/contact" element={<ContactUs />} />
+      <Route path="/careers" element={<Careers />} />
 
       <Route path="/services/web" element={<WebDevelopment />} />
       <Route path="/services/mobile" element={<MobileApps />} />
