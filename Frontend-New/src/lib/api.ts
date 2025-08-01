@@ -34,6 +34,27 @@ api.interceptors.response.use(
 
 // ✅ Client API
 export const clientApi = {
+  // Authentication
+  login: async (credentials: { email: string, password: string }) => {
+    const response = await api.post('/api/auth/login', credentials)
+    return response.data
+  },
+
+  register: async (userData: {
+    name: string,
+    email: string,
+    password: string,
+    role: string
+  }) => {
+    const response = await api.post('/api/auth/register', userData)
+    return response.data
+  },
+
+  verifyEmail: async (data: { email: string, otp: string }) => {
+    const response = await api.post('/api/auth/verify-email', data)
+    return response.data
+  },
+
   // Dashboard Data
   getClientOverview: async () => {
     const response = await api.get('/api/client/overview')

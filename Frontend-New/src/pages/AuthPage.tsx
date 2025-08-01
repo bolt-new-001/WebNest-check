@@ -13,10 +13,13 @@ import { Badge } from '@/components/ui/badge'
 import { clientApi } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Loader2 } from 'lucide-react'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  otp: z.string().optional(),
 })
 
 const registerSchema = z.object({
@@ -24,6 +27,7 @@ const registerSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string(),
+  otp: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -38,6 +42,8 @@ export function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [userType, setUserType] = useState<'client' | 'developer' | 'admin'>('client')
+  const [isOtpVerification, setIsOtpVerification] = useState(false)
+  const [otpEmail, setOtpEmail] = useState('')
 
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -52,9 +58,15 @@ export function AuthPage() {
     try {
       const response = await clientApi.login(data)
       const userData = response.data
-      
+
       if (!userData || !userData.token) {
         throw new Error('Invalid login response structure')
+      }
+
+      if (!userData.isEmailVerified) {
+        setIsOtpVerification(true)
+        setOtpEmail(data.email)
+        return
       }
 
       login(userData, userData.token)
@@ -84,35 +96,48 @@ export function AuthPage() {
         role: userType // Include the selected role
       })
       
-      // The user data is directly in response.data
-      const userData = response.data;
-      
-      if (!userData || !userData.token) {
-        throw new Error('Invalid registration response');
+      if (response.data && response.data.message === 'Registration successful. Please check your email for verification code.') {
+        setIsOtpVerification(true)
+        setOtpEmail(data.email)
+        toast.success('Registration successful! Please check your email for the verification code.')
+        return
       }
-
-      // Login with the user data and token
-      login(userData, userData.token)
       
-      toast.success('Account created successfully!')
-      
-      // Navigate based on the user's role
-      switch(userData.role) {
-        case 'admin':
-          navigate('/admin');
-          break;
-        case 'developer':
-          navigate('/developer');
-          break;
-        default:
-          navigate('/client');
-      }
+      throw new Error('Unexpected registration response')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 
                          error.message || 
                          'Registration failed. Please try again.';
       toast.error(errorMessage)
       console.error('Registration error:', error);
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleOtpVerify = async (email: string, otp: string) => {
+    setIsLoading(true)
+    try {
+      const response = await clientApi.verifyEmail({ email, otp })
+      
+      if (response.data && response.data.message === 'Email verified successfully') {
+        toast.success('Email verified successfully!')
+        setIsOtpVerification(false)
+        setOtpEmail('')
+        
+        // Get user data after verification
+        const userData = response.data.user
+        
+        // Login with verified user
+        login(userData, userData.token)
+        
+        // Navigate to client dashboard
+        navigate('/client')
+      } else {
+        toast.error('Invalid OTP. Please try again.')
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Invalid OTP')
     } finally {
       setIsLoading(false)
     }
@@ -233,93 +258,154 @@ export function AuthPage() {
               </TabsList>
 
               <TabsContent value="login">
-                <motion.form
+                <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  onSubmit={loginForm.handleSubmit(handleLogin)}
                   className="space-y-4"
                 >
-                  <div className="space-y-2">
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      icon={<Mail className="h-4 w-4" />}
-                      error={loginForm.formState.errors.email?.message}
-                      {...loginForm.register('email')}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="relative">
+                  {isOtpVerification ? (
+                    <>
+                      <Alert className="bg-blue-50 border-blue-200">
+                        <AlertTitle>Verify Email</AlertTitle>
+                        <AlertDescription>
+                          Please enter the OTP sent to your email: {otpEmail}
+                        </AlertDescription>
+                      </Alert>
                       <Input
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        icon={<Lock className="h-4 w-4" />}
-                        error={loginForm.formState.errors.password?.message}
-                        autoComplete="current-password"
-                        {...loginForm.register('password')}
+                        type="text"
+                        placeholder="Enter OTP"
+                        icon={<Code2 className="h-4 w-4" />}
+                        error={loginForm.formState.errors.otp?.message}
+                        {...loginForm.register('otp')}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      <Button
+                        onClick={() => handleOtpVerify(otpEmail, loginForm.getValues('otp'))}
+                        className="w-full" size="lg" loading={isLoading}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
+                        {isLoading ? 'Verifying...' : 'Verify OTP'}
+                      </Button>
+                    </>
+                  ) : (
+                    <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                      <div className="space-y-2">
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          icon={<Mail className="h-4 w-4" />}
+                          error={loginForm.formState.errors.email?.message}
+                          {...loginForm.register('email')}
+                        />
+                      </div>
 
-                  <Button type="submit" className="w-full" size="lg" loading={isLoading}>
-                    {isLoading ? 'Signing In...' : 'Sign In'}
-                  </Button>
-                </motion.form>
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Enter your password"
+                            icon={<Lock className="h-4 w-4" />}
+                            error={loginForm.formState.errors.password?.message}
+                            autoComplete="current-password"
+                            {...loginForm.register('password')}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <Button 
+                          type="button" 
+                          variant="link" 
+                          onClick={() => navigate('/auth/forgot')}
+                          className="text-sm text-primary hover:text-accent transition-colors"
+                        >
+                          Forgot Password?
+                        </Button>
+                      </div>
+
+                      <Button type="submit" className="w-full" size="lg" loading={isLoading}>
+                        {isLoading ? 'Signing In...' : 'Sign In'}
+                      </Button>
+                    </form>
+                  )}
+                </motion.div>
               </TabsContent>
 
               <TabsContent value="register">
-                <motion.form
+                <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  onSubmit={registerForm.handleSubmit(handleRegister)}
                   className="space-y-4"
                 >
-                  <Input
-                    type="text"
-                    placeholder="Enter your full name"
-                    icon={<User className="h-4 w-4" />}
-                    error={registerForm.formState.errors.name?.message}
-                    {...registerForm.register('name')}
-                  />
+                  {isOtpVerification ? (
+                    <>
+                      <Alert className="bg-blue-50 border-blue-200">
+                        <AlertTitle>Verify Email</AlertTitle>
+                        <AlertDescription>
+                          Please enter the OTP sent to your email: {otpEmail}
+                        </AlertDescription>
+                      </Alert>
+                      <Input
+                        type="text"
+                        placeholder="Enter OTP"
+                        icon={<Code2 className="h-4 w-4" />}
+                        error={registerForm.formState.errors.otp?.message}
+                        {...registerForm.register('otp')}
+                      />
+                      <Button
+                        onClick={() => handleOtpVerify(otpEmail, registerForm.getValues('otp'))}
+                        className="w-full" size="lg" loading={isLoading}
+                      >
+                        {isLoading ? 'Verifying...' : 'Verify OTP'}
+                      </Button>
+                    </>
+                  ) : (
+                    <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+                      <Input
+                        type="text"
+                        placeholder="Enter your full name"
+                        icon={<User className="h-4 w-4" />}
+                        error={registerForm.formState.errors.name?.message}
+                        {...registerForm.register('name')}
+                      />
 
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    icon={<Mail className="h-4 w-4" />}
-                    error={registerForm.formState.errors.email?.message}
-                    {...registerForm.register('email')}
-                  />
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        icon={<Mail className="h-4 w-4" />}
+                        error={registerForm.formState.errors.email?.message}
+                        {...registerForm.register('email')}
+                      />
 
-                  <Input
-                    type="password"
-                    placeholder="Create a password"
-                    icon={<Lock className="h-4 w-4" />}
-                    error={registerForm.formState.errors.password?.message}
-                    {...registerForm.register('password')}
-                  />
+                      <Input
+                        type="password"
+                        placeholder="Create a password"
+                        icon={<Lock className="h-4 w-4" />}
+                        error={registerForm.formState.errors.password?.message}
+                        {...registerForm.register('password')}
+                      />
 
-                  <Input
-                    type="password"
-                    placeholder="Confirm your password"
-                    icon={<Lock className="h-4 w-4" />}
-                    error={registerForm.formState.errors.confirmPassword?.message}
-                    {...registerForm.register('confirmPassword')}
-                  />
+                      <Input
+                        type="password"
+                        placeholder="Confirm your password"
+                        icon={<Lock className="h-4 w-4" />}
+                        error={registerForm.formState.errors.confirmPassword?.message}
+                        {...registerForm.register('confirmPassword')}
+                      />
 
-                  <Button type="submit" className="w-full" size="lg" variant="gradient" loading={isLoading}>
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
-                  </Button>
-                </motion.form>
+                      <Button type="submit" className="w-full" size="lg" variant="gradient" loading={isLoading}>
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                      </Button>
+                    </form>
+                  )}
+                </motion.div>
               </TabsContent>
             </Tabs>
           </CardContent>
