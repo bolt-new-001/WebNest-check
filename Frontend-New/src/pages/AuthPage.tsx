@@ -57,8 +57,21 @@ export function AuthPage() {
     setIsLoading(true)
     try {
       const response = await clientApi.login(data)
-      const userData = response.data
+      
+      if (response.data && response.data.message) {
+        if (response.data.message === 'Email not verified') {
+          setIsOtpVerification(true)
+          setOtpEmail(data.email)
+          toast.info('Please verify your email using the OTP sent to your email.')
+          return
+        } else if (response.data.message === 'Invalid credentials') {
+          toast.error('Invalid email or password')
+          return
+        }
+      }
 
+      const userData = response.data
+      
       if (!userData || !userData.token) {
         throw new Error('Invalid login response structure')
       }
@@ -66,6 +79,7 @@ export function AuthPage() {
       if (!userData.isEmailVerified) {
         setIsOtpVerification(true)
         setOtpEmail(data.email)
+        toast.info('Please verify your email using the OTP sent to your email.')
         return
       }
 
@@ -80,7 +94,10 @@ export function AuthPage() {
         navigate('/client')
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message || 'Login failed')
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         'Login failed. Please try again.';
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -96,11 +113,16 @@ export function AuthPage() {
         role: userType // Include the selected role
       })
       
-      if (response.data && response.data.message === 'Registration successful. Please check your email for verification code.') {
-        setIsOtpVerification(true)
-        setOtpEmail(data.email)
-        toast.success('Registration successful! Please check your email for the verification code.')
-        return
+      if (response.data && response.data.message) {
+        if (response.data.message === 'Registration successful. Please check your email for verification code.') {
+          setIsOtpVerification(true)
+          setOtpEmail(data.email)
+          toast.success('Registration successful! Please check your email for the verification code.')
+          return
+        } else if (response.data.message === 'User already exists') {
+          toast.error('This email is already registered')
+          return
+        }
       }
       
       throw new Error('Unexpected registration response')
@@ -120,24 +142,33 @@ export function AuthPage() {
     try {
       const response = await clientApi.verifyEmail({ email, otp })
       
-      if (response.data && response.data.message === 'Email verified successfully') {
-        toast.success('Email verified successfully!')
-        setIsOtpVerification(false)
-        setOtpEmail('')
-        
-        // Get user data after verification
-        const userData = response.data.user
-        
-        // Login with verified user
-        login(userData, userData.token)
-        
-        // Navigate to client dashboard
-        navigate('/client')
+      if (response.data && response.data.message) {
+        if (response.data.message === 'Email verified successfully') {
+          toast.success('Email verified successfully!')
+          setIsOtpVerification(false)
+          setOtpEmail('')
+          
+          // Get user data after verification
+          const userData = response.data.user
+          
+          // Login with verified user
+          login(userData, userData.token)
+          
+          // Navigate to client dashboard
+          navigate('/client')
+        } else if (response.data.message === 'Invalid OTP') {
+          toast.error('Invalid OTP. Please try again.')
+        } else {
+          toast.error('Verification failed. Please try again.')
+        }
       } else {
-        toast.error('Invalid OTP. Please try again.')
+        toast.error('No response from server. Please try again.')
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Invalid OTP')
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         'Verification failed. Please try again.';
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
