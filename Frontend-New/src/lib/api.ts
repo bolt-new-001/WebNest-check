@@ -55,6 +55,30 @@ export const clientApi = {
     return response.data
   },
 
+  // Security
+  changePassword: async (data: {
+    currentPassword: string,
+    newPassword: string
+  }) => {
+    const response = await api.put('/api/security/change-password', data)
+    return response.data
+  },
+
+  toggle2FA: async (enable: boolean) => {
+    const response = await api.put('/api/security/two-factor', { enable })
+    return response.data
+  },
+
+  getSessions: async () => {
+    const response = await api.get('/api/security/sessions')
+    return response.data
+  },
+
+  revokeSession: async (sessionId: string) => {
+    const response = await api.delete(`/api/security/sessions/${sessionId}`)
+    return response.data
+  },
+
   // Dashboard Data
   getClientOverview: async () => {
     const response = await api.get('/api/client/overview')
