@@ -1,4 +1,3 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -9,7 +8,7 @@ interface CustomNavbarProps {
   onBack?: () => void
 }
 
-export default function CustomNavbar({ title, showBackButton = true, onBack }: CustomNavbarProps) {
+export function CustomNavbar({ title, showBackButton = true, onBack }: CustomNavbarProps) {
   const navigate = useNavigate()
 
   const handleBack = () => {

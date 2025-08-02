@@ -1,8 +1,7 @@
-import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Mail, Phone, MapPin } from 'lucide-react'
 
-export default function CustomFooter() {
+export function CustomFooter() {
   return (
     <footer className="bg-background/95 border-t border-border/50">
       <div className="container mx-auto px-4 py-8">

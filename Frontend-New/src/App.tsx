@@ -12,6 +12,12 @@ import { TermsOfService } from '@/pages/legal/TermsOfService'
 import { PrivacyPolicy } from '@/pages/legal/PrivacyPolicy'
 import { CookiesPolicy } from '@/pages/legal/CookiesPolicy'
 
+
+// Maintance Pages
+import { Maintenance } from '@/pages/maintenance/Maintenance'
+import { NotFound } from '@/pages/maintenance/NotFound'
+
+
 // Services Pages
 import { WebDevelopment } from '@/pages/services/WebDevelopment'
 import { MobileApps } from '@/pages/services/MobileApps'
@@ -46,6 +52,11 @@ function App() {
       <Route path="/services/mobile" element={<MobileApps />} />
       <Route path="/services/ecommerce" element={<Ecommerce />} />
       <Route path="/services/consulting" element={<Consulting />} />
+      
+
+      {/* Maintenance Routes */}
+      <Route path="/maintenance" element={<Maintenance />} />
+      <Route path="*" element={<NotFound />} />
       
       
       {/* Protected Routes */}
