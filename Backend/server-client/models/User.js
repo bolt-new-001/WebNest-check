@@ -80,8 +80,28 @@ const userSchema = new mongoose.Schema({
       type: String,
       enum: ['light', 'dark', 'system'],
       default: 'system'
-    }
-  }
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false
+    },
+    twoFactorSecret: {
+      type: String,
+      default: ''
+    },
+    twoFactorBackupCodes: [{
+      code: String,
+      used: { type: Boolean, default: false }
+    }]
+  },
+  activeSessions: [{
+    id: String,
+    userAgent: String,
+    ip: String,
+    lastUsed: Date,
+    device: String,
+    location: String
+  }]
 }, {
   timestamps: true
 });
