@@ -47,19 +47,20 @@ export function ClientProfile() {
         </div>
 
         {/* Profile Header Card */}
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-10" />
-          <CardContent className="p-8">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-background via-muted/50 to-muted border-none shadow-xl">
+          <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:10px_10px]" />
+          <div className="absolute h-full w-full bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-orange-600/20 opacity-20 blur-3xl" />
+          <CardContent className="relative p-8 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="relative">
-                <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
+                <Avatar className="h-32 w-32 ring-4 ring-background shadow-2xl transition-transform hover:scale-105 duration-300">
                   <AvatarImage src={user?.avatar} alt={user?.name} />
                   <AvatarFallback className="text-2xl">
                     {user?.name ? getInitials(user.name) : <User className="h-12 w-12" />}
                   </AvatarFallback>
                 </Avatar>
                 {user?.isPremium && (
-                  <div className="absolute -top-2 -right-2 bg-yellow-500 rounded-full p-2">
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full p-2 shadow-lg animate-pulse">
                     <Crown className="h-4 w-4 text-white" />
                   </div>
                 )}
@@ -77,7 +78,7 @@ export function ClientProfile() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm backdrop-blur-sm bg-background/50 p-4 rounded-lg shadow-inner">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <span>{user?.email}</span>
@@ -188,8 +189,8 @@ export function ClientProfile() {
           </TabsContent>
 
           <TabsContent value="stats" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 [&>*:nth-child(1)]:animate-in [&>*:nth-child(1)]:fade-in-0 [&>*:nth-child(1)]:slide-in-from-left-3 [&>*:nth-child(2)]:animate-in [&>*:nth-child(2)]:fade-in-25 [&>*:nth-child(2)]:slide-in-from-left-6 [&>*:nth-child(3)]:animate-in [&>*:nth-child(3)]:fade-in-50 [&>*:nth-child(3)]:slide-in-from-left-9 [&>*:nth-child(4)]:animate-in [&>*:nth-child(4)]:fade-in-75 [&>*:nth-child(4)]:slide-in-from-left-12">
+              <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 hover:bg-muted/50">
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-2">
                     <TrendingUp className="h-8 w-8 text-blue-600" />
