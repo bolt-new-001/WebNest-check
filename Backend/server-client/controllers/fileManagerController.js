@@ -225,27 +225,42 @@ export const deleteProjectFile = asyncHandler(async (req, res) => {
 export const downloadProjectFile = asyncHandler(async (req, res) => {
   const { fileId } = req.params;
 
-  const file = await ProjectFile.findById(fileId);
+  try {
+    const file = await ProjectFile.findById(fileId);
 
-  if (!file) {
-    return res.status(404).json({ message: 'File not found' });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    // Verify project access
+    const project = await Project.findOne({
+      _id: file.projectId,
+      clientId: req.user._id
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Increment download count
+    file.downloadCount += 1;
+    await file.save();
+
+    // Redirect to Cloudinary URL for download
+    res.json({
+      success: true,
+      data: {
+        downloadUrl: file.fileUrl,
+        fileName: file.originalName
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error processing download request',
+      error: error.message
+    });
   }
-
-  // Verify project access
-  const project = await Project.findOne({
-    _id: file.projectId,
-    clientId: req.user._id
-  });
-
-  if (!project) {
-    return res.status(404).json({ message: 'Project not found' });
-  }
-
-  // Increment download count
-  file.downloadCount += 1;
-  await file.save();
-
-  res.download(file.fileUrl, file.originalName);
 });
 
 // @desc    Get file statistics
