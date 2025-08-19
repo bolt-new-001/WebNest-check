@@ -4,11 +4,13 @@ import Project from '../models/Project.js';
 import { logActivity } from './activityFeedController.js';
 import multer from 'multer';
 import path from 'path';
+import cloudinary from '../config/cloudinaryConfig.js';
+import { promises as fs } from 'fs';
 
-// Configure multer for file uploads
+// Configure multer for temporary storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/projects/');
+    cb(null, 'tmp/uploads/');
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -64,20 +66,33 @@ export const uploadProjectFile = asyncHandler(async (req, res) => {
     fileType = 'archive';
   }
 
-  const projectFile = await ProjectFile.create({
-    projectId,
-    uploadedBy: req.user._id,
-    uploaderType: 'User',
-    fileName: req.file.filename,
-    originalName: req.file.originalname,
-    fileUrl: `/uploads/projects/${req.file.filename}`,
-    fileType,
-    mimeType: req.file.mimetype,
-    fileSize: req.file.size,
-    category: category || 'other',
-    description,
-    isPublic
-  });
+  try {
+    // Upload to Cloudinary
+    const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+      folder: `webnest/projects/${projectId}`,
+      resource_type: 'auto'
+    });
+
+    // Create file record
+    const projectFile = await ProjectFile.create({
+      projectId,
+      uploadedBy: req.user._id,
+      uploaderType: 'User',
+      fileName: req.file.filename,
+      originalName: req.file.originalname,
+      fileUrl: cloudinaryResult.secure_url,
+      publicId: cloudinaryResult.public_id,
+      fileType,
+      mimeType: req.file.mimetype,
+      fileSize: req.file.size,
+      category: category || 'other',
+      description,
+      isPublic
+    });
+
+    // Delete temporary file
+    await fs.unlink(req.file.path);
+
 
   // Log activity
   await logActivity(
