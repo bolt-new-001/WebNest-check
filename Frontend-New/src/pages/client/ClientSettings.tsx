@@ -200,7 +200,7 @@ export default function ClientSettings() {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-5 p-1 bg-muted/50 backdrop-blur-sm rounded-xl shadow-inner">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
@@ -225,14 +225,17 @@ export default function ClientSettings() {
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Picture</CardTitle>
+            <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/20">
+              <CardHeader className="border-b bg-muted/50">
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Profile Picture
+                </CardTitle>
                 <CardDescription>Update your profile picture</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-6">
                 <div className="flex items-center space-x-4">
-                  <Avatar className="h-20 w-20">
+                  <Avatar className="h-20 w-20 ring-2 ring-offset-2 ring-primary/20 transition-all duration-300 group-hover:ring-primary/50 group-hover:scale-105">
                     <AvatarImage src={user?.avatar} alt={user?.name} />
                     <AvatarFallback>
                       {user?.name ? getInitials(user.name) : <User className="h-8 w-8" />}
@@ -240,7 +243,7 @@ export default function ClientSettings() {
                   </Avatar>
                   <div>
                     <Label htmlFor="avatar" className="cursor-pointer">
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-foreground">
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-primary transition-colors duration-300">
                         <Upload className="h-4 w-4" />
                         <span>Upload new image</span>
                       </div>
@@ -260,9 +263,12 @@ export default function ClientSettings() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
+            <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/20">
+              <CardHeader className="border-b bg-muted/50">
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Personal Information
+                </CardTitle>
                 <CardDescription>Update your personal details</CardDescription>
               </CardHeader>
               <CardContent>
@@ -274,6 +280,7 @@ export default function ClientSettings() {
                         id="name"
                         {...profileForm.register('name', { required: 'Name is required' })}
                         placeholder="Enter your full name"
+                        className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       />
                       {profileForm.formState.errors.name && (
                         <p className="text-sm text-red-500">{profileForm.formState.errors.name.message}</p>
@@ -314,7 +321,7 @@ export default function ClientSettings() {
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-primary/80 to-primary hover:from-primary hover:to-primary/80 transition-all duration-300 shadow-lg hover:shadow-xl"
                     disabled={updateProfileMutation.isPending}
                   >
                     <Save className="h-4 w-4 mr-2" />
@@ -327,13 +334,16 @@ export default function ClientSettings() {
 
           {/* Notifications Tab */}
           <TabsContent value="notifications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
+            <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/20">
+              <CardHeader className="border-b bg-muted/50">
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5 text-primary" />
+                  Notification Preferences
+                </CardTitle>
                 <CardDescription>Choose what notifications you want to receive</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:bg-muted/50 hover:shadow-inner">
                   <div className="space-y-0.5">
                     <Label>Email Notifications</Label>
                     <p className="text-sm text-muted-foreground">Receive notifications via email</p>
@@ -382,15 +392,18 @@ export default function ClientSettings() {
 
           {/* Appearance Tab */}
           <TabsContent value="appearance" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Theme & Appearance</CardTitle>
+            <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/20">
+              <CardHeader className="border-b bg-muted/50">
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="h-5 w-5 text-primary" />
+                  Theme & Appearance
+                </CardTitle>
                 <CardDescription>Customize how the interface looks and feels</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-2">
                   <Label>Color Mode</Label>
-                  <Select defaultValue={preferences?.colorMode || 'system'}>
+                  <Select defaultValue={preferences?.colorMode || 'system'} className="w-full transition-all duration-300 focus:ring-2 focus:ring-primary/20">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -404,7 +417,7 @@ export default function ClientSettings() {
                 
                 <div className="grid gap-2">
                   <Label>Layout Density</Label>
-                  <Select defaultValue={preferences?.layout || 'comfortable'}>
+                  <Select defaultValue={preferences?.layout || 'comfortable'} className="w-full transition-all duration-300 focus:ring-2 focus:ring-primary/20">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -418,7 +431,7 @@ export default function ClientSettings() {
                 
                 <div className="grid gap-2">
                   <Label>Theme</Label>
-                  <Select defaultValue={preferences?.theme || 'default'}>
+                  <Select defaultValue={preferences?.theme || 'default'} className="w-full transition-all duration-300 focus:ring-2 focus:ring-primary/20">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
