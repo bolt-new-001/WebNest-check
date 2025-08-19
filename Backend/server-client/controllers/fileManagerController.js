@@ -93,21 +93,36 @@ export const uploadProjectFile = asyncHandler(async (req, res) => {
     // Delete temporary file
     await fs.unlink(req.file.path);
 
+    // Log activity
+    await logActivity(
+      projectId,
+      req.user._id,
+      'User',
+      'file_uploaded',
+      `Uploaded file: ${req.file.originalname}`,
+      { fileId: projectFile._id, category, fileType }
+    );
 
-  // Log activity
-  await logActivity(
-    projectId,
-    req.user._id,
-    'User',
-    'file_uploaded',
-    `Uploaded file: ${req.file.originalname}`,
-    { fileId: projectFile._id, category, fileType }
-  );
+    res.status(201).json({
+      success: true,
+      data: projectFile
+    });
+  } catch (error) {
+    // Clean up temporary file if it exists
+    if (req.file && req.file.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting temporary file:', unlinkError);
+      }
+    }
 
-  res.status(201).json({
-    success: true,
-    data: projectFile
-  });
+    res.status(500).json({
+      success: false,
+      message: 'Error uploading file',
+      error: error.message
+    });
+  }
 });
 
 // @desc    Get project files
@@ -172,22 +187,35 @@ export const deleteProjectFile = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Project not found' });
   }
 
-  await ProjectFile.findByIdAndDelete(fileId);
+  try {
+    // Delete from Cloudinary
+    if (file.publicId) {
+      await cloudinary.uploader.destroy(file.publicId);
+    }
 
-  // Log activity
-  await logActivity(
-    file.projectId,
-    req.user._id,
-    'User',
-    'file_deleted',
-    `Deleted file: ${file.originalName}`,
-    { fileId, category: file.category }
-  );
+    await ProjectFile.findByIdAndDelete(fileId);
 
-  res.json({
-    success: true,
-    message: 'File deleted successfully'
-  });
+    // Log activity
+    await logActivity(
+      file.projectId,
+      req.user._id,
+      'User',
+      'file_deleted',
+      `Deleted file: ${file.originalName}`,
+      { fileId, category: file.category }
+    );
+
+    res.json({
+      success: true,
+      message: 'File deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting file',
+      error: error.message
+    });
+  }
 });
 
 // @desc    Download project file
