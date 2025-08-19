@@ -8,10 +8,14 @@ import cloudinary from '../config/cloudinaryConfig.js';
 import { promises as fs } from 'fs';
 import mongoose from 'mongoose';
 
+// Ensure temporary upload directory exists
+const uploadDir = 'tmp/uploads/';
+fs.mkdir(uploadDir, { recursive: true }).catch(console.error);
+
 // Configure multer for temporary storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'tmp/uploads/');
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
