@@ -30,6 +30,10 @@ import {
   Code2,
   X,
   Sparkles,
+  Flag,
+  Clock,
+  DollarSign,
+  Database,
 } from 'lucide-react';
 
 const navigation = [
