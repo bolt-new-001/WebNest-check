@@ -105,15 +105,27 @@ export function ClientFiles() {
               Upload Files
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl bg-gradient-to-br from-background to-muted/50 backdrop-blur-sm border-none">
             <DialogHeader>
-              <DialogTitle>Upload Project Files</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Upload Project Files</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
                 Upload files for your projects
               </DialogDescription>
             </DialogHeader>
-            <div className="p-4 text-center text-gray-500">
-              File upload form coming soon...
+            <div className="p-8 text-center relative overflow-hidden rounded-lg border border-dashed border-primary/20 bg-muted/5 hover:bg-muted/10 transition-colors group cursor-pointer">
+              <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:10px_10px]" />
+              <div className="relative z-10 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                  <Upload className="h-8 w-8 text-primary group-hover:text-accent transition-colors" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Drag & drop your files here</p>
+                  <p className="text-xs text-muted-foreground">or click to browse</p>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Supported formats: Images, Documents, Archives up to 50MB
+                </div>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -293,12 +305,27 @@ export function ClientFiles() {
                   Upload Files
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="bg-gradient-to-br from-background to-muted/50 backdrop-blur-sm border-none">
                 <DialogHeader>
-                  <DialogTitle>Upload Files</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Upload Files</DialogTitle>
+                  <DialogDescription className="text-muted-foreground">
+                    Get started by uploading your first file
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="p-4 text-center text-gray-500">
-                  File upload form coming soon...
+                <div className="p-8 text-center relative overflow-hidden rounded-lg border border-dashed border-primary/20 bg-muted/5 hover:bg-muted/10 transition-colors group cursor-pointer">
+                  <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:10px_10px]" />
+                  <div className="relative z-10 space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                      <Upload className="h-8 w-8 text-primary group-hover:text-accent transition-colors" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Drag & drop your files here</p>
+                      <p className="text-xs text-muted-foreground">or click to browse</p>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Supported formats: Images, Documents, Archives up to 50MB
+                    </div>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
