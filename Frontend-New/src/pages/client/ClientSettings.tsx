@@ -190,7 +190,7 @@ export default function ClientSettings() {
       <div className="container mx-auto py-6 space-y-8">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/client/profile')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/client/profile')} className="hover:bg-primary/10 transition-colors duration-300">
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -449,16 +449,19 @@ export default function ClientSettings() {
 
           {/* Preferences Tab */}
           <TabsContent value="preferences" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>General Preferences</CardTitle>
+            <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/20">
+              <CardHeader className="border-b bg-muted/50">
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-primary" />
+                  General Preferences
+                </CardTitle>
                 <CardDescription>Configure your general preferences</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="grid gap-2">
                     <Label>Currency</Label>
-                    <Select defaultValue={preferences?.currency || 'USD'}>
+                    <Select defaultValue={preferences?.currency || 'USD'} className="w-full transition-all duration-300 focus:ring-2 focus:ring-primary/20">
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -473,7 +476,7 @@ export default function ClientSettings() {
                   
                   <div className="grid gap-2">
                     <Label>Language</Label>
-                    <Select defaultValue={preferences?.language || 'en'}>
+                    <Select defaultValue={preferences?.language || 'en'} className="w-full transition-all duration-300 focus:ring-2 focus:ring-primary/20">
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -514,14 +517,17 @@ export default function ClientSettings() {
 
           {/* Security Tab */}
           <TabsContent value="security" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Security</CardTitle>
+            <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/20">
+              <CardHeader className="border-b bg-muted/50">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Account Security
+                </CardTitle>
                 <CardDescription>Manage your account security settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:bg-muted/50 hover:shadow-inner group/item">
                     <div>
                       <h4 className="font-medium">Password</h4>
                       <p className="text-sm text-muted-foreground">Last changed 3 months ago</p>

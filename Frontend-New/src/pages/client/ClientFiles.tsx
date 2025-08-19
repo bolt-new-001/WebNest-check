@@ -91,16 +91,16 @@ export function ClientFiles() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-gradient-to-b from-background to-muted/20">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">File Management</h1>
-          <p className="text-gray-600">Upload and manage project files</p>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">File Management</h1>
+          <p className="text-muted-foreground">Upload and manage project files</p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary transition-all duration-500 shadow-lg hover:shadow-xl hover:scale-105">
               <Upload className="mr-2 h-4 w-4" />
               Upload Files
             </Button>
@@ -120,7 +120,7 @@ export function ClientFiles() {
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border-none shadow-lg bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
@@ -136,7 +136,7 @@ export function ClientFiles() {
               <select
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-input bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-ring hover:bg-accent/5 transition-colors"
               >
                 <option value="all">Select Project</option>
                 {projects?.data?.data?.map((project: any) => (
@@ -148,7 +148,7 @@ export function ClientFiles() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-input bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-ring hover:bg-accent/5 transition-colors"
               >
                 {categoryOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -197,11 +197,11 @@ export function ClientFiles() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
               >
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-primary/20 bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="p-3 bg-blue-100 rounded-lg">
-                        <FileIcon className="h-6 w-6 text-blue-600" />
+                      <div className="p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                        <FileIcon className="h-6 w-6 text-primary group-hover:text-accent transition-colors duration-300" />
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -232,18 +232,18 @@ export function ClientFiles() {
                     <div className="space-y-2">
                       <h3 className="font-medium text-sm line-clamp-2">{file.originalName}</h3>
                       <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs bg-primary/5 hover:bg-primary/10 transition-colors">
                           {file.category}
                         </Badge>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           {(file.fileSize / 1024).toFixed(1)} KB
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {formatDate(file.createdAt)}
                       </p>
                       {file.description && (
-                        <p className="text-xs text-gray-600 line-clamp-2">
+                        <p className="text-xs text-muted-foreground/80 line-clamp-2">
                           {file.description}
                         </p>
                       )}

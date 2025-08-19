@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { ClientLayout } from '@/components/layouts/ClientLayout'
+import { cn } from '@/lib/utils'
 import ClientDashboardOverview from './ClientDashboardOverview'
 import { ClientProjects } from './ClientProjects'
 import { ClientProjectDetail } from './ClientProjectDetail'
@@ -19,12 +20,12 @@ import { ClientChat } from './ClientChat'
 
 export function ClientDashboard() {
   return (
-    <ClientLayout>
-      <Routes>
+    <ClientLayout className="bg-gradient-to-b from-background to-muted/20">
+      <Routes className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
         <Route path="/" element={<ClientDashboardOverview />} />
-        <Route path="/projects" element={<ClientProjects />} />
-        <Route path="/projects/:id" element={<ClientProjectDetail />} />
-        <Route path="/add-project" element={<AddProject />} />
+        <Route path="/projects" element={<ClientProjects />} className="transition-all duration-300 hover:bg-primary/10 rounded-lg" />
+        <Route path="/projects/:id" element={<ClientProjectDetail />} className="transition-all duration-300 hover:bg-primary/10 rounded-lg" />
+        <Route path="/add-project" element={<AddProject />} className="transition-all duration-300 hover:bg-primary/10 rounded-lg" />
         <Route path="/files" element={<ClientFiles />} />
         <Route path="/chat" element={<ClientChat />} />
         <Route path="/chat/:projectId" element={<ClientChat />} />
