@@ -167,21 +167,36 @@ export function ClientFiles() {
 
       {/* Files Grid */}
       {selectedProject === 'all' ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Project</h3>
-            <p className="text-gray-600">Choose a project to view and manage its files</p>
+        <Card className="border-none shadow-lg bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm overflow-hidden">
+          <CardContent className="p-12 text-center relative">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:10px_10px]" />
+            <div className="absolute h-full w-full bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 opacity-20 blur-3xl" />
+            <div className="relative z-10">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mx-auto mb-6 animate-float">
+                <Upload className="h-10 w-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">Select a Project</h3>
+              <p className="text-muted-foreground">Choose a project to view and manage its files</p>
+            </div>
           </CardContent>
         </Card>
       ) : isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse border-none shadow-lg bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm overflow-hidden">
               <CardContent className="p-6">
-                <div className="h-12 w-12 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded"></div>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg animate-pulse"></div>
+                  <div className="w-8 h-8 bg-muted rounded-md"></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-4 bg-primary/10 rounded w-3/4"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="h-6 bg-primary/5 rounded-full w-20"></div>
+                    <div className="h-4 bg-muted rounded w-16"></div>
+                  </div>
+                  <div className="h-3 bg-muted rounded w-24"></div>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -255,16 +270,22 @@ export function ClientFiles() {
           })}
         </div>
       ) : (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No files found</h3>
-            <p className="text-gray-600 mb-6">
-              {searchTerm || categoryFilter !== 'all' 
-                ? 'Try adjusting your search or filters'
-                : 'Upload your first file to get started'
-              }
-            </p>
+        <Card className="border-none shadow-lg bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm overflow-hidden">
+          <CardContent className="p-12 text-center relative">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:10px_10px]" />
+            <div className="absolute h-full w-full bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 opacity-20 blur-3xl" />
+            <div className="relative z-10">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mx-auto mb-6 animate-float">
+                <Upload className="h-10 w-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">No files found</h3>
+              <p className="text-muted-foreground mb-6">
+                {searchTerm || categoryFilter !== 'all' 
+                  ? 'Try adjusting your search or filters'
+                  : 'Upload your first file to get started'
+                }
+              </p>
+            </div>
             <Dialog>
               <DialogTrigger asChild>
                 <Button>
