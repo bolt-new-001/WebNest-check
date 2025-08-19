@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { 
-  Plus, 
-  Search, 
-  Filter, 
+import {
+  Plus,
+  Search,
+  Filter,
   MoreHorizontal,
   Eye,
   Edit,
@@ -44,9 +44,9 @@ export function ClientProjectDetail() {
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ['projects', { search: searchTerm, status: statusFilter }],
-    queryFn: () => clientApi.getProjects({ 
+    queryFn: () => clientApi.getProjects({
       search: searchTerm || undefined,
-      status: statusFilter !== 'all' ? statusFilter : undefined 
+      status: statusFilter !== 'all' ? statusFilter : undefined
     }),
   })
 
@@ -74,15 +74,15 @@ export function ClientProjectDetail() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-gradient-to-b from-background to-muted/20">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-          <p className="text-gray-600">Manage and track all your projects</p>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Projects</h1>
+          <p className="text-muted-foreground">Manage and track all your projects</p>
         </div>
         <Link to="/client/add-project">
-          <Button>
+          <Button className="bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary transition-all duration-500 shadow-lg hover:shadow-xl hover:scale-105">
             <Plus className="mr-2 h-4 w-4" />
             New Project
           </Button>
@@ -90,7 +90,7 @@ export function ClientProjectDetail() {
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border-none shadow-lg bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
@@ -106,7 +106,7 @@ export function ClientProjectDetail() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-input bg-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-ring hover:bg-accent/5 transition-colors"
               >
                 {statusOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -127,7 +127,7 @@ export function ClientProjectDetail() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse border-none shadow-lg bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm">
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded mb-4"></div>
@@ -149,12 +149,12 @@ export function ClientProjectDetail() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card className="group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-primary/20 bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg line-clamp-1">{project.title}</CardTitle>
-                      <CardDescription className="line-clamp-2 mt-1">
+                      <CardTitle className="text-lg line-clamp-1 group-hover:text-primary transition-colors">{project.title}</CardTitle>
+                      <CardDescription className="line-clamp-2 mt-1 group-hover:text-muted-foreground/80 transition-colors">
                         {project.description}
                       </CardDescription>
                     </div>
@@ -175,7 +175,7 @@ export function ClientProjectDetail() {
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Project
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="text-red-600"
                           onClick={() => deleteProjectMutation.mutate(project._id)}
                         >
@@ -194,7 +194,7 @@ export function ClientProjectDetail() {
                         <span>Progress</span>
                         <span>{project.progress?.percentage || 0}%</span>
                       </div>
-                      <Progress value={project.progress?.percentage || 0} />
+                      <Progress value={project.progress?.percentage || 0} className="bg-muted/50" indicatorClassName="bg-gradient-to-r from-primary to-accent" />
                     </div>
 
                     {/* Status and Budget */}
@@ -202,27 +202,27 @@ export function ClientProjectDetail() {
                       <Badge className={getStatusColor(project.status)}>
                         {project.status}
                       </Badge>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <DollarSign className="h-4 w-4 mr-1" />
+                      <div className="flex items-center text-sm text-muted-foreground group-hover:text-muted-foreground/80 transition-colors">
+                        <DollarSign className="h-4 w-4 mr-1 group-hover:text-primary transition-colors" />
                         {formatCurrency(project.budget)}
                       </div>
                     </div>
 
                     {/* Developer and Date */}
-                    <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground group-hover:text-muted-foreground/80 transition-colors">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1" />
+                        <User className="h-4 w-4 mr-1 group-hover:text-primary transition-colors" />
                         {project.developerId?.name || 'Unassigned'}
                       </div>
                       <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
+                        <Calendar className="h-4 w-4 mr-1 group-hover:text-primary transition-colors" />
                         {formatDate(project.createdAt)}
                       </div>
                     </div>
 
                     {/* Action Button */}
                     <Link to={`/client/projects/${project._id}`}>
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full hover:bg-primary/10 hover:border-primary/20 transition-all duration-300">
                         View Project
                       </Button>
                     </Link>
@@ -233,24 +233,28 @@ export function ClientProjectDetail() {
           ))}
         </div>
       ) : (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <Plus className="h-12 w-12 text-gray-400" />
+        <Card className="border-none shadow-lg bg-gradient-to-br from-card/50 to-muted/50 backdrop-blur-sm overflow-hidden">
+          <CardContent className="p-12 text-center relative">
+            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:10px_10px]" />
+            <div className="absolute h-full w-full bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 opacity-20 blur-3xl" />
+            <div className="relative z-10">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mx-auto mb-6 animate-float">
+                <Plus className="h-10 w-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">No projects found</h3>
+              <p className="text-muted-foreground mb-6">
+                {searchTerm || statusFilter !== 'all'
+                  ? 'Try adjusting your search or filters'
+                  : 'Get started by creating your first project'
+                }
+              </p>
+              <Link to="/client/add-project">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Project
+                </Button>
+              </Link>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-            <p className="text-gray-600 mb-6">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filters'
-                : 'Get started by creating your first project'
-              }
-            </p>
-            <Link to="/client/add-project">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Project
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       )}

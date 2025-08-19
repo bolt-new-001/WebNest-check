@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
 import { ClientLayout } from '@/components/layouts/ClientLayout'
-import { cn } from '@/lib/utils'
 import ClientDashboardOverview from './ClientDashboardOverview'
 import { ClientProjects } from './ClientProjects'
 import { ClientProjectDetail } from './ClientProjectDetail'
@@ -15,17 +14,23 @@ import { ClientProfile } from './ClientProfile'
 import ClientPremium from './ClientPremium'
 import ClientPackages from './ClientPackages'
 import { ClientChat } from './ClientChat'
+
+import ClientBudget from './ClientBudget'
+import ClientMilestones from './ClientMilestones'
+import ClientTimeTracking from './ClientTimeTracking'
+import ClientBackups from './ClientBackups'
+
 // import ClientPackageDetail from './ClientPackageDetail'
 // import  ClientPackageCustomize from './ClientPackageCustomize'
 
 export function ClientDashboard() {
   return (
-    <ClientLayout className="bg-gradient-to-b from-background to-muted/20">
-      <Routes className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+    <ClientLayout>
+      <Routes>
         <Route path="/" element={<ClientDashboardOverview />} />
-        <Route path="/projects" element={<ClientProjects />} className="transition-all duration-300 hover:bg-primary/10 rounded-lg" />
-        <Route path="/projects/:id" element={<ClientProjectDetail />} className="transition-all duration-300 hover:bg-primary/10 rounded-lg" />
-        <Route path="/add-project" element={<AddProject />} className="transition-all duration-300 hover:bg-primary/10 rounded-lg" />
+        <Route path="/projects" element={<ClientProjects />} />
+        <Route path="/projects/:id" element={<ClientProjectDetail />} />
+        <Route path="/add-project" element={<AddProject />} />
         <Route path="/files" element={<ClientFiles />} />
         <Route path="/chat" element={<ClientChat />} />
         <Route path="/chat/:projectId" element={<ClientChat />} />
@@ -36,6 +41,13 @@ export function ClientDashboard() {
         <Route path="/profile" element={<ClientProfile />} />
         <Route path="/premium" element={<ClientPremium />} />
         <Route path="/packages" element={<ClientPackages />} />
+
+        <Route path="/budget" element={<ClientBudget />} />
+        <Route path="/backups" element={<ClientBackups />} />
+        <Route path="/milestone" element={<ClientMilestones />} />
+        <Route path="/time-tracking" element={<ClientTimeTracking />} />
+
+
         {/* <Route path="/packages/:id" element={<ClientPackageDetail />} /> */}
         {/* <Route path="/packages/:id/customize" element={<ClientPackageCustomize />} /> */}
       </Routes>
