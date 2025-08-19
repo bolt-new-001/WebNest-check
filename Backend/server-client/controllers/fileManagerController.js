@@ -6,6 +6,7 @@ import multer from 'multer';
 import path from 'path';
 import cloudinary from '../config/cloudinaryConfig.js';
 import { promises as fs } from 'fs';
+import mongoose from 'mongoose';
 
 // Configure multer for temporary storage
 const storage = multer.diskStorage({
@@ -253,35 +254,53 @@ export const downloadProjectFile = asyncHandler(async (req, res) => {
 export const getFileStats = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
 
-  const stats = await ProjectFile.aggregate([
-    { $match: { projectId: mongoose.Types.ObjectId(projectId) } },
-    {
-      $group: {
-        _id: null,
-        totalFiles: { $sum: 1 },
-        totalSize: { $sum: '$fileSize' },
-        fileTypes: { $push: '$fileType' },
-        categories: { $push: '$category' }
-      }
-    }
-  ]);
+  try {
+    // Verify project access
+    const project = await Project.findOne({
+      _id: projectId,
+      clientId: req.user._id
+    });
 
-  const typeBreakdown = await ProjectFile.aggregate([
-    { $match: { projectId: mongoose.Types.ObjectId(projectId) } },
-    {
-      $group: {
-        _id: '$fileType',
-        count: { $sum: 1 },
-        totalSize: { $sum: '$fileSize' }
-      }
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
     }
-  ]);
 
-  res.json({
-    success: true,
-    data: {
-      overview: stats[0] || { totalFiles: 0, totalSize: 0 },
-      typeBreakdown
-    }
-  });
+    const stats = await ProjectFile.aggregate([
+      { $match: { projectId: new mongoose.Types.ObjectId(projectId) } },
+      {
+        $group: {
+          _id: null,
+          totalFiles: { $sum: 1 },
+          totalSize: { $sum: '$fileSize' },
+          fileTypes: { $push: '$fileType' },
+          categories: { $push: '$category' }
+        }
+      }
+    ]);
+
+    const typeBreakdown = await ProjectFile.aggregate([
+      { $match: { projectId: new mongoose.Types.ObjectId(projectId) } },
+      {
+        $group: {
+          _id: '$fileType',
+          count: { $sum: 1 },
+          totalSize: { $sum: '$fileSize' }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overview: stats[0] || { totalFiles: 0, totalSize: 0, fileTypes: [], categories: [] },
+        typeBreakdown
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error getting file statistics',
+      error: error.message
+    });
+  }
 });
