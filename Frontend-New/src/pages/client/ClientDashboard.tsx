@@ -59,10 +59,30 @@ export function ClientDashboard() {
         {/* <Route path="/premium/features" element={<ClientPremiumFeatures />} /> */}
         {/* <Route path="/packages/premium" element={<ClientPremiumPackages />} /> */}
 
+        {/* Finance & Billing */}
+        {/* <Route path="/billing" element={<ClientBilling />} /> */}
+        {/* <Route path="/invoices" element={<ClientInvoices />} /> */}
+        {/* <Route path="/transactions" element={<ClientTransactions />} /> */}
 
+      
         {/* Extra Routes  */}
         <Route path="/milestone" element={<ClientMilestones />} />
         <Route path="/time-tracking" element={<ClientTimeTracking />} />
+        {/* <Route path="/reports" element={<ClientReports />} /> */}
+
+
+        {/* Settings Realted Routes */}
+        {/* <Route path="/settings/integrations" element={<ClientSettingsIntegrations />} /> */}
+        {/* <Route path="/settings/notifications" element={<ClientSettingsNotifications />} /> */}
+        {/* <Route path="/settings/privacy" element={<ClientSettingsPrivacy />} /> */}
+        {/* <Route path="/settings/security" element={<ClientSettingsSecurity />} /> */}
+        {/* <Route path="/settings/notifications" element={<ClientSettingsNotifications />} /> */}
+        
+
+        {/* Communication Routes  */}
+        {/* <Route path="/chat/groups" element={<ClientChatGroups />} /> */}
+        {/* <Route path="/chat/groups/:id" element={<ClientChatGroup />} /> */}
+        {/* <Route path="/meetings" element={<ClientMeetings />} /> */}
 
 
         {/* Package realeted routes */}
