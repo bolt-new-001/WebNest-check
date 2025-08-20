@@ -28,28 +28,53 @@ export function ClientDashboard() {
     <ClientLayout>
       <Routes>
         <Route path="/" element={<ClientDashboardOverview />} />
+
+        {/* Project Realated Routes */}
         <Route path="/projects" element={<ClientProjects />} />
         <Route path="/projects/:id" element={<ClientProjectDetail />} />
         <Route path="/add-project" element={<AddProject />} />
+        <Route path="/budget" element={<ClientBudget />} />
+        <Route path="/revisions" element={<ClientRevisions />} />
+
+
+        {/* Files Realated Routes */}
         <Route path="/files" element={<ClientFiles />} />
+        <Route path="/backups" element={<ClientBackups />} />
+
+
+        {/* Chat Realated Routes */}
         <Route path="/chat" element={<ClientChat />} />
         <Route path="/chat/:projectId" element={<ClientChat />} />
         <Route path="/notifications" element={<ClientNotifications />} />
-        <Route path="/revisions" element={<ClientRevisions />} />
-        <Route path="/support" element={<ClientSupport />} />
-        <Route path="/settings" element={<ClientSettings />} />
-        <Route path="/profile" element={<ClientProfile />} />
-        <Route path="/premium" element={<ClientPremium />} />
-        <Route path="/packages" element={<ClientPackages />} />
 
-        <Route path="/budget" element={<ClientBudget />} />
-        <Route path="/backups" element={<ClientBackups />} />
+
+        {/* Profile Realated Routes */}
+        <Route path="/profile" element={<ClientProfile />} />
+        <Route path="/settings" element={<ClientSettings />} />
+        <Route path="/support" element={<ClientSupport />} />
+
+
+        {/* Premium Realated Routes */}
+        <Route path="/premium" element={<ClientPremium />} />
+        {/* <Route path="/premium/features" element={<ClientPremiumFeatures />} /> */}
+        {/* <Route path="/packages/premium" element={<ClientPremiumPackages />} /> */}
+
+
+        {/* Extra Routes  */}
         <Route path="/milestone" element={<ClientMilestones />} />
         <Route path="/time-tracking" element={<ClientTimeTracking />} />
 
 
+        {/* Package realeted routes */}
+        <Route path="/packages" element={<ClientPackages />} />
         {/* <Route path="/packages/:id" element={<ClientPackageDetail />} /> */}
         {/* <Route path="/packages/:id/customize" element={<ClientPackageCustomize />} /> */}
+
+
+        {/* Other Routes  */}
+
+
+
       </Routes>
     </ClientLayout>
   )

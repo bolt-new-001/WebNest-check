@@ -1,13 +1,34 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'
+// Define the interface for our standard API response
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
 
-// Default Axios instance
+// Extend the ImportMeta interface to include env
+interface ImportMetaEnv {
+  VITE_API_BASE_URL?: string;
+  [key: string]: any;
+}
+
+declare global {
+  interface ImportMeta {
+    env: ImportMetaEnv;
+  }
+}
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:5001';
+
+// Default Axios instance with proper typing
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 seconds timeout
 })
 
 // Add token to headers (Request Interceptor)
@@ -19,18 +40,82 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle 401 errors (Response Interceptor)
+// Response Interceptor for consistent error handling
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/auth'
+  (response) => {
+    // For successful responses, ensure consistent structure
+    if (response.data) {
+      // If the response already has a success flag, use it as is
+      if (response.data.success !== undefined) {
+        return response;
+      }
+      // Wrap in standard response format if needed
+      return {
+        ...response,
+        data: {
+          success: true,
+          data: response.data
+        }
+      };
     }
-    return Promise.reject(error)
+    return response;
+  },
+  (error: AxiosError) => {
+    // Handle network errors
+    if (!error.response) {
+      console.error('Network Error:', error.message);
+      return Promise.reject({
+        response: {
+          data: {
+            success: false,
+            message: 'Network Error: Unable to connect to the server.'
+          },
+          status: 0
+        }
+      });
+    }
+
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/auth';
+      return Promise.reject({
+        response: {
+          ...error.response,
+          data: {
+            success: false,
+            message: 'Your session has expired. Please log in again.'
+          }
+        }
+      });
+    }
+
+    // Handle other errors
+    const errorMessage = error.response?.data?.message || 
+                        error.response?.data?.error || 
+                        'An unexpected error occurred';
+    
+    console.error('API Error:', {
+      status: error.response?.status,
+      message: errorMessage,
+      url: error.config?.url,
+      method: error.config?.method
+    });
+
+    // Ensure consistent error response structure
+    return Promise.reject({
+      response: {
+        ...error.response,
+        data: {
+          success: false,
+          message: errorMessage,
+          ...(error.response?.data || {})
+        }
+      }
+    });
   }
-)
+);
 
 // ✅ Client API
 export const clientApi = {
@@ -129,11 +214,67 @@ export const clientApi = {
 
   getProfile: () => api.get('/api/auth/me'),
 
-  // Projects
+  // Project types
+  Project: {
+    create: async (data: {
+      title: string;
+      description: string;
+      projectType: string;
+      budget: number;
+      priority: 'low' | 'medium' | 'high' | 'urgent';
+      features: Array<{
+        name: string;
+        description: string;
+        price: number;
+      }>;
+      selectedTheme?: string | null;
+      aiFeatures?: string[];
+      timeline?: {
+        estimatedDays: number;
+        startDate?: Date;
+        expectedDelivery?: Date;
+      };
+    }) => {
+      try {
+        const response = await api.post<ApiResponse<{
+          _id: string;
+          title: string;
+          status: string;
+          createdAt: string;
+        }>>('/api/projects', data);
+        
+        if (!response.data.success) {
+          throw new Error(response.data.message || 'Failed to create project');
+        }
+        
+        return response.data;
+      } catch (error) {
+        console.error('Error in project creation:', error);
+        throw error;
+      }
+    },
+    
+    get: async (id: string) => {
+      const response = await api.get<ApiResponse>(`/api/projects/${id}`);
+      return response.data;
+    },
+    
+    list: async (params?: Record<string, any>) => {
+      const response = await api.get<ApiResponse>('/api/projects', { params });
+      return response.data;
+    },
+    
+    update: async (id: string, data: any) => {
+      const response = await api.put<ApiResponse>(`/api/projects/${id}`, data);
+      return response.data;
+    }
+  },
+  
+  // Legacy methods (deprecated, will be removed in future)
   getProjects: (params?: any) => api.get('/api/projects', { params }),
   getProject: (id: string) => api.get(`/api/projects/${id}`),
-  createProject: (data: any) => api.post('/api/projects', data),
-  updateProject: (id: string, data: any) => api.put(`/api/projects/${id}`, data),
+  createProject: (data: any) => clientApi.Project.create(data),
+  updateProject: (id: string, data: any) => clientApi.Project.update(id, data),
 
   // Activity Feed
   getProjectActivity: (projectId: string, params?: any) =>

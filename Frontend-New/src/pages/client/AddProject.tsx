@@ -58,35 +58,45 @@ import { Separator } from '@/components/ui/separator'
 import { Progress } from '@radix-ui/react-progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@radix-ui/react-select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Slider } from '@radix-ui/react-slider'
 import { clientApi } from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
 
 interface ProjectData {
-  type: string
-  industry: string
-  features: string[]
-  teamRoles: { role: string; level: string; price: number; quantity: number }[]
-  addOns: string[]
-  theme: string
-  pages: string[]
-  customPages: string
-  budget: { inr: number; usd: number }
-  timeline: number
-  packageType?: string
-  projectName: string
-  description: string
-  targetAudience: string
-  priorityLevel: string
-  maintenancePlan: string
-  contentProvided: boolean
-  domainStatus: string
-  inspirationLinks: string[]
-  colorPreferences: { primary: string; secondary: string }
-  performanceGoals: { loadTime: number; seoScore: number }
-  accessibilityLevel: string
+  title: string;
+  description: string;
+  projectName: string;
+  projectType: string;
+  industry: string;
+  features: Array<string | { name: string; description: string; price: number }>;
+  teamRoles: Array<{ role: string; quantity: number }>;
+  addOns: string[];
+  selectedTheme?: string;
+  pages: Array<{ id: string; name: string; description?: string }>;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  accessibilityLevel: 'basic' | 'standard' | 'enhanced';
+  status: 'draft' | 'submitted' | 'in_review' | 'approved' | 'rejected';
+  budget?: number;
+  timeline: number;
+  targetAudience: string;
+  contentProvided: boolean;
+  domainStatus: 'needed' | 'registered' | 'not_needed';
+  inspirationLinks: string[];
+  colorPreferences: {
+    primary: string;
+    secondary: string;
+    neutral: string;
+  };
+  performanceGoals?: {
+    loadTime: number;
+    seoScore: number;
+    accessibility: boolean;
+    mobileFriendly: boolean;
+  };
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 const steps = [
@@ -234,7 +244,12 @@ const studentPackages = [
   },
 ]
 
-const priorityLevels = ['Low', 'Medium', 'High', 'Urgent']
+const priorityLevels = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' }
+]
 const maintenancePlans = ['None', 'Basic (Monthly)', 'Premium (Weekly)', 'Enterprise (Daily)']
 const domainStatuses = ['I have a domain', 'Need to purchase', 'Not sure']
 const accessibilityLevels = ['Basic (WCAG 2.0 A)', 'Standard (WCAG 2.0 AA)', 'Advanced (WCAG 2.0 AAA)']
@@ -242,28 +257,44 @@ const accessibilityLevels = ['Basic (WCAG 2.0 A)', 'Standard (WCAG 2.0 AA)', 'Ad
 export function AddProject() {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [projectData, setProjectData] = useState<ProjectData>({
-    type: '',
+    title: '',
+    description: '',
+    projectName: '',
+    projectType: 'website',
     industry: '',
     features: [],
     teamRoles: [],
     addOns: [],
-    theme: '',
-    pages: [...defaultPages],
-    customPages: '',
-    budget: { inr: 0, usd: 0 },
-    timeline: 0,
-    projectName: '',
-    description: '',
+    selectedTheme: '',
+    pages: [
+      { id: 'home', name: 'Home', description: 'Main landing page' },
+      { id: 'about', name: 'About', description: 'About us page' },
+      { id: 'contact', name: 'Contact', description: 'Contact information page' }
+    ],
+    priority: 'medium',
     targetAudience: '',
-    priorityLevel: 'Medium',
-    maintenancePlan: 'None',
     contentProvided: false,
-    domainStatus: 'Not sure',
+    domainStatus: 'not_needed',
     inspirationLinks: [],
-    colorPreferences: { primary: '#3B82F6', secondary: '#10B981' },
-    performanceGoals: { loadTime: 2, seoScore: 80 },
-    accessibilityLevel: 'Standard (WCAG 2.0 AA)'
+    colorPreferences: {
+      primary: '',
+      secondary: '',
+      neutral: ''
+    },
+    performanceGoals: {
+      loadTime: 3,
+      seoScore: 80,
+      accessibility: false,
+      mobileFriendly: true
+    },
+    accessibilityLevel: 'standard',
+    status: 'draft',
+    timeline: 1,
+    budget: 0
   })
   const [showPackages, setShowPackages] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState('')
@@ -272,8 +303,20 @@ export function AddProject() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    calculateBudget()
-    // Improved scroll behavior
+    calculateBudget();
+  }, [
+    projectData.projectType,
+    projectData.industry,
+    projectData.features,
+    projectData.teamRoles,
+    projectData.pages,
+    projectData.addOns,
+    projectData.accessibilityLevel,
+    projectData.priority,
+    projectData.projectName
+  ]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (scrollRef.current) {
         window.scrollTo({
@@ -281,7 +324,7 @@ export function AddProject() {
           behavior: 'smooth'
         })
       }
-    }, 100) // Small delay to ensure content is rendered
+    }, 100)
     return () => clearTimeout(timer)
   }, [currentStep])
 
@@ -290,209 +333,311 @@ export function AddProject() {
   }, [projectData.industry])
 
   const calculateBudget = () => {
-    if (!projectData.type || !projectData.industry) return
+    try {
+      if (!projectData.projectType) {
+        const defaultValues = { budget: 0, timeline: 1 };
+        setProjectData(prev => ({ ...prev, ...defaultValues }));
+        return defaultValues;
+      }
 
-    const baseType = projectTypes.find(t => t.id === projectData.type)
-    const industryData = industries.find(i => i.id === projectData.industry)
+      // Get base price from project type
+      const baseType = projectTypes.find(t => t.id === projectData.projectType);
+      if (!baseType) {
+        setProjectData(prev => ({ ...prev, budget: 0, timeline: 1 }));
+        return 0;
+      }
 
-    if (!baseType || !industryData) return
+      // Initialize with base price
+      let total = Number(baseType?.basePrice) || 0;
+      let timeline = 1; // Minimum timeline of 1 day
+      
+      // Apply industry multiplier if available
+      if (projectData.industry) {
+        const industryData = industries.find(i => i.id === projectData.industry);
+        if (industryData?.multiplier) {
+          total = Math.round(Number(total) * Number(industryData.multiplier));
+        }
+      }
+      
+      // Ensure we have valid numbers
+      if (isNaN(total)) total = 0;
+      if (isNaN(timeline)) timeline = 1;
 
-    let total = baseType.basePrice * industryData.multiplier
+      // Add features cost
+      if (Array.isArray(projectData.features)) {
+        projectData.features.forEach((feature: any) => {
+          if (typeof feature === 'string') {
+            const featureData = features.find(f => f.id === feature);
+            if (featureData) total += featureData.price;
+          } else if (feature.selected) {
+            total += Number(feature.price) || 0;
+          }
+        });
+      }
 
-    // Add features cost
-    projectData.features.forEach(featureId => {
-      const feature = features.find(f => f.id === featureId)
-      if (feature) total += feature.price
-    })
+      // Add team roles cost
+      if (Array.isArray(projectData.teamRoles)) {
+        projectData.teamRoles.forEach((role: any) => {
+          const roleData = teamRoles.find(r => r.role === role.role);
+          if (roleData) {
+            const levelData = roleData.levels.find((l: any) => l.level === role.level);
+            if (levelData) {
+              total += (levelData.price || 0) * (role.quantity || 1);
+            }
+          }
+        });
+      }
 
-    // Add team roles cost
-    projectData.teamRoles.forEach(role => {
-      total += role.price * role.quantity
-    })
+      // Add pages cost (beyond 4 pages)
+      const pageCount = Array.isArray(projectData.pages) ? projectData.pages.length : 0;
+      const additionalPages = Math.max(0, pageCount - 4);
+      total += additionalPages * 1000; // ₹1000 per additional page
 
-    // Add add-ons cost
-    projectData.addOns.forEach(addOnId => {
-      const addOn = addOns.find(a => a.id === addOnId)
-      if (addOn) total += addOn.price
-    })
+      // Add add-ons cost
+      if (Array.isArray(projectData.addOns)) {
+        projectData.addOns.forEach((addOnId: string) => {
+          const addOn = addOns.find(a => a.id === addOnId);
+          if (addOn) total += addOn.price;
+        });
+      }
 
-    // Add pages cost (₹1000 per additional page beyond 4)
-    const additionalPages = Math.max(0, projectData.pages.length - 4)
-    total += additionalPages * 1000
+      // Accessibility level cost
+      const accessibilityCosts: Record<string, number> = {
+        'basic': 1000,
+        'standard': 3000,
+        'enhanced': 6000,
+        'Basic (WCAG 2.0 A)': 1000,
+        'Standard (WCAG 2.0 AA)': 3000,
+        'Advanced (WCAG 2.0 AAA)': 6000
+      };
+      
+      if (projectData.accessibilityLevel) {
+        total += accessibilityCosts[projectData.accessibilityLevel] || 0;
+      }
 
-    // Maintenance plan cost
-    const maintenanceCosts = {
-      'None': 0,
-      'Basic (Monthly)': 2000,
-      'Premium (Weekly)': 5000,
-      'Enterprise (Daily)': 10000
+      // Calculate timeline based on project complexity
+      if (projectData.projectName?.trim()) {
+        // Base timeline on project type
+        timeline = baseType.id === 'landing' ? 3 : 
+                  baseType.id === 'website' ? 7 :
+                  baseType.id === 'ecommerce' ? 14 :
+                  baseType.id === 'webapp' ? 21 : 30;
+        
+        // Adjust based on features
+        timeline += (projectData.features?.length || 0) * 2;
+        
+        // Adjust based on team size
+        const teamSize = projectData.teamRoles?.reduce((sum: number, role: any) => sum + (role.quantity || 0), 0) || 0;
+        timeline = Math.max(1, Math.ceil(timeline / (teamSize || 1)));
+        
+        // Adjust based on priority
+        if (projectData.priority === 'urgent') {
+          timeline = Math.max(1, Math.floor(timeline * 0.7));
+        } else if (projectData.priority === 'high') {
+          timeline = Math.max(1, Math.floor(timeline * 0.85));
+        } else if (projectData.priority === 'low') {
+          timeline = Math.ceil(timeline * 1.2);
+        }
+        
+        // Ensure minimum timeline of 1 day
+        timeline = Math.max(1, timeline);
+      }
+
+      // Ensure final values are valid numbers
+      const finalBudget = Math.max(0, Math.round(Number(total) || 0));
+      const finalTimeline = Math.max(1, Math.round(Number(timeline) || 1));
+      
+      // Update project data with new calculations
+      setProjectData((prev: any) => ({
+        ...prev,
+        budget: finalBudget,
+        timeline: finalTimeline
+      }));
+      
+      return { budget: finalBudget, timeline: finalTimeline };
+    } catch (error) {
+      console.error('Error calculating budget:', error);
     }
-    total += maintenanceCosts[projectData.maintenancePlan]
-
-    // Priority level multiplier
-    const priorityMultipliers = {
-      'Low': 0.9,
-      'Medium': 1.0,
-      'High': 1.2,
-      'Urgent': 1.5
-    }
-    total *= priorityMultipliers[projectData.priorityLevel]
-
-    // Accessibility level cost
-    const accessibilityCosts = {
-      'Basic (WCAG 2.0 A)': 1000,
-      'Standard (WCAG 2.0 AA)': 3000,
-      'Advanced (WCAG 2.0 AAA)': 6000
-    }
-    total += accessibilityCosts[projectData.accessibilityLevel]
-
-    // Calculate timeline
-    let timeline = 7
-    timeline += projectData.features.length * 2
-    timeline += projectData.teamRoles.length * 1
-    timeline += additionalPages * 1
-    timeline += priorityMultipliers[projectData.priorityLevel] === 1.5 ? -3 : 0 // Urgent projects get faster delivery
-
-    setProjectData(prev => ({
-      ...prev,
-      budget: {
-        inr: Math.round(total),
-        usd: Math.round(total * 0.012)
-      },
-      timeline
-    }))
   }
 
-  const handleStepClick = (stepId: number) => {
-    if (stepId <= currentStep || (projectData.type && projectData.industry)) {
-      setCurrentStep(stepId)
+  const validateStep = (step: number): boolean => {
+    const errors: string[] = [];
+    
+    switch (step) {
+      case 1: // Basic Info
+        if (!projectData.projectName?.trim()) {
+          errors.push('Project name is required');
+        }
+        break;
+        
+      case 2: // Project Type
+        if (!projectData.projectType) {
+          errors.push('Please select a project type');
+        }
+        break;
+        
+      case 3: // Industry
+        if (!projectData.industry) {
+          errors.push('Please select an industry');
+        }
+        break;
+        
+      case 4: // Features
+        if (!projectData.features?.length) {
+          errors.push('Please select at least one feature');
+        }
+        break;
+        
+      case 5: // Team Roles
+        if (!projectData.teamRoles?.length) {
+          errors.push('Please add at least one team role');
+        }
+        break;
+        
+      // Add more validations for other steps as needed
     }
-  }
-
-  const validateStep = (step: number) => {
-    switch(step) {
-      case 1:
-        return !!projectData.projectName && !!projectData.description;
-      case 2:
-        return !!projectData.type;
-      case 3:
-        return !!projectData.industry;
-      case 4:
-        return projectData.features.length > 0;
-      case 5:
-        return projectData.teamRoles.length > 0;
-      default:
-        return true;
+    
+    if (errors.length > 0) {
+      toast.error(errors[0]);
+      return false;
     }
-  }
+    
+    return true;
+  };
 
   const handleNext = () => {
     if (!validateStep(currentStep)) {
-      toast.error('Please complete all required fields before proceeding');
       return;
     }
     
+    // Recalculate budget before proceeding to next step
+    calculateBudget();
+    
     if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(prev => {
+        const nextStep = prev + 1;
+        // Add to completed steps if not already there
+        if (!completedSteps.includes(prev)) {
+          setCompletedSteps(prevSteps => [...prevSteps, prev]);
+        }
+        return nextStep;
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }
+  };
 
   const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+    setCurrentStep(prev => {
+      const prevStep = Math.max(1, prev - 1);
+      console.log(`Moving to previous step: ${prevStep}`);
+      return prevStep;
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const handleStepClick = (step: number) => {
+    // Allow clicking on any step that's either completed or the next logical step
+    if (step <= currentStep || (step === currentStep + 1 && validateStep(currentStep))) {
+      setCurrentStep(step);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (step > currentStep) {
+      // If trying to skip ahead, validate current step first
+      if (validateStep(currentStep)) {
+        setCurrentStep(step);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   }
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    
     try {
-      // Form validation
-      if (!projectData.projectName) {
-        toast.error('Project name is required');
-        return;
-      }
-      if (!projectData.type) {
-        toast.error('Project type is required');
-        return;
-      }
-      if (!projectData.industry) {
-        toast.error('Industry is required');
-        return;
-      }
-
-      // Transform features into required format
-      const formattedFeatures = projectData.features.map(featureId => {
-        const feature = features.find(f => f.id === featureId);
-        return {
-          id: featureId,
-          name: feature?.title || '',
-          description: feature?.description || '',
-          price: feature?.price || 0
-        };
-      });
-
-      // Validate required fields according to backend schema
-      if (projectData.budget.inr < 1000) {
-        toast.error('Minimum budget should be ₹1,000');
-        return;
-      }
-
-      const validProjectTypes = ['website', 'ecommerce', 'webapp', 'portfolio', 'landing', 'custom'];
-      if (!validProjectTypes.includes(projectData.type)) {
-        toast.error('Invalid project type selected');
-        return;
-      }
-
-      const response = await clientApi.createProject({
-        title: projectData.projectName,
-        description: projectData.description || `Custom ${projectData.type} with ${projectData.features.length} features`,
-        projectType: projectData.type, // Changed from type to projectType
-        budget: projectData.budget.inr, // Changed from object to number
-        selectedTheme: projectData.theme || null,
-        features: formattedFeatures,
-        priority: projectData.priorityLevel?.toLowerCase() || 'medium',
-        timeline: {
-          estimatedDays: projectData.timeline
-        },
-        status: 'pending',
-        industry: projectData.industry,
-        requirements: {
-          targetAudience: projectData.targetAudience,
-          teamRoles: projectData.teamRoles,
-          addOns: projectData.addOns,
-          theme: projectData.theme,
-          pages: projectData.pages,
-          packageType: selectedPackage,
-          targetAudience: projectData.targetAudience,
-          priorityLevel: projectData.priorityLevel,
-          maintenancePlan: projectData.maintenancePlan,
-          contentProvided: projectData.contentProvided,
-          domainStatus: projectData.domainStatus,
-          inspirationLinks: projectData.inspirationLinks,
-          colorPreferences: projectData.colorPreferences,
-          performanceGoals: projectData.performanceGoals,
-          accessibilityLevel: projectData.accessibilityLevel
+      setIsSubmitting(true);
+      
+      // Validate all steps before submission
+      for (let i = 1; i <= steps.length; i++) {
+        if (!validateStep(i)) {
+          setCurrentStep(i);
+          toast.error('Please complete all required fields');
+          return;
         }
-      })
+      }
 
-      if (response.status === 201 || response.status === 200) {
-        toast.success('Project submitted successfully!')
-        navigate('/client/projects')
+      // Prepare submission data
+      const submissionData = {
+        title: projectData.projectName?.trim() || 'Untitled Project',
+        description: projectData.description || '',
+        projectType: projectData.projectType,
+        industry: projectData.industry,
+        features: (projectData.features || []).map((feature: any) => ({
+          name: feature.name || feature,
+          description: feature.description?.trim() || '',
+          price: Number(feature.price) || 0
+        })),
+        teamRoles: projectData.teamRoles || [],
+        addOns: projectData.addOns || [],
+        status: 'draft',
+        budget: projectData.budget || 0,
+        timeline: projectData.timeline || 1
+      };
+
+      // Submit to backend
+      const response = await clientApi.Project.create(submissionData);
+      
+      if (response.success) {
+        toast.success('Project created successfully!');
+        navigate('/client/projects');
       } else {
-        throw new Error('Failed to create project');
+        throw new Error(response.message || 'Failed to create project');
       }
     } catch (error: any) {
-      console.error('Project submission error:', error);
-      toast.error(error.response?.data?.message || 'Failed to submit project. Please try again.')
+      console.error('Error creating project:', error);
       
-      // Handle specific error cases
-      if (error.response?.status === 400) {
-        toast.error('Invalid project data. Please check all required fields.');
-      } else if (error.response?.status === 401) {
-        toast.error('Please log in again to submit your project.');
-        navigate('/auth');
-      } else if (error.response?.status === 404) {
-        toast.error('Project creation service is currently unavailable.');
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with an error status code
+        console.error('Error response data:', error.response.data);
+        console.error('Error status:', error.response.status);
+        
+        switch (error.response.status) {
+          case 400:
+            toast.error('Invalid project data. Please check your input and try again.');
+            break;
+          case 401:
+            toast.error('Your session has expired. Please log in again.');
+            navigate('/auth');
+            return;
+          case 403:
+            toast.error('You do not have permission to create a project.');
+            break;
+          case 409:
+            toast.error('A project with this name already exists.');
+            break;
+          case 500:
+            toast.error('Server error. Please try again later.');
+            break;
+          default:
+            const errorMessage = error.response.data?.message || 
+                               error.response.data?.error || 
+                               'Failed to create project';
+            toast.error(errorMessage);
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error('No response received from server');
+        toast.error('Unable to connect to the server. Please check your internet connection and try again.');
+      } else if (error.message) {
+        // Error in setting up the request
+        console.error('Request setup error:', error.message);
+        toast.error(`Error: ${error.message}`);
+      } else {
+        // Unknown error
+        console.error('Unknown error occurred');
+        toast.error('An unexpected error occurred. Please try again.');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -519,79 +664,123 @@ export function AddProject() {
       case 10:
         return <StepSummary projectData={projectData} />
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100" ref={scrollRef}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={() => navigate('/client')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold">Create New Project</h1>
-                <p className="text-gray-600">Build your vision with precision and detail</p>
-              </div>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/logo.png" 
+                alt="WebNest" 
+                className="h-9 w-auto transition-transform hover:scale-105" 
+              />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Create New Project
+              </h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="text-sm">
-                Progress: {Math.round((currentStep / steps.length) * 100)}%
-              </Badge>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="bg-blue-50 px-3 py-1 rounded-full text-sm font-medium text-blue-700">
+                Step {currentStep} of {steps.length}
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => router.push('/client/projects')}
+                className="group flex items-center space-x-1.5 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-0.5 transition-transform" />
+                <span>Back to Projects</span>
+              </Button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Progress Bar */}
-      <div className="bg-white border-b py-4">
+      {/* Progress Steps */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 py-4">
         <div className="container mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            {steps.map((step, index) => (
-              <TooltipProvider key={step.id}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={`flex items-center cursor-pointer ${currentStep < step.id && (!projectData.type || !projectData.industry) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      onClick={() => handleStepClick(step.id)}
-                    >
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= step.id
-                        ? 'bg-blue-600 border-blue-600 text-white'
-                        : 'border-gray-300 text-gray-500'
-                        }`}>
-                        {currentStep > step.id ? (
-                          <Check className="h-5 w-5" />
-                        ) : (
-                          <span className="text-sm font-medium">{step.id}</span>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+            {steps.map((step, index) => {
+              const isActive = index + 1 === currentStep;
+              const isCompleted = index + 1 < currentStep;
+              const isClickable = isCompleted || (index === currentStep - 1) || (index === currentStep && validateStep(currentStep));
+              
+              return (
+                <TooltipProvider key={step.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className={`group flex items-center cursor-pointer transition-all duration-300 ${isClickable ? 'opacity-100' : 'opacity-60'}`}
+                        onClick={() => isClickable && handleStepClick(index + 1)}
+                      >
+                        <div 
+                          className={`flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 ${
+                            isActive 
+                              ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-100 transform scale-110' 
+                              : isCompleted 
+                                ? 'bg-green-100 text-green-600 group-hover:bg-green-50' 
+                                : 'bg-gray-100 text-gray-400 group-hover:bg-gray-50'
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <span className={`font-medium ${isActive ? 'text-white' : 'text-inherit'}`}>
+                              {index + 1}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="ml-2 sm:ml-3">
+                          <div 
+                            className={`text-sm font-medium transition-colors duration-300 ${
+                              isActive 
+                                ? 'text-blue-700 font-semibold' 
+                                : isCompleted 
+                                  ? 'text-green-700' 
+                                  : 'text-gray-600'
+                            }`}
+                          >
+                            {step.title}
+                          </div>
+                          <div className="text-xs text-gray-500 hidden sm:block">
+                            {step.description}
+                          </div>
+                        </div>
+                        
+                        {index < steps.length - 1 && (
+                          <div 
+                            className={`w-8 sm:w-12 h-0.5 mx-2 sm:mx-4 transition-all duration-500 ${
+                              isCompleted 
+                                ? 'bg-gradient-to-r from-green-400 to-green-200' 
+                                : isActive 
+                                  ? 'bg-gradient-to-r from-blue-200 to-purple-200' 
+                                  : 'bg-gray-200'
+                            }`} 
+                          />
                         )}
                       </div>
-                      <div className="ml-3 hidden md:block">
-                        <p className={`text-sm font-medium ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'
-                          }`}>
-                          {step.title}
-                        </p>
-                        <p className="text-xs text-gray-500">{step.description}</p>
-                      </div>
-                      {index < steps.length - 1 && (
-                        <div className={`w-16 h-0.5 mx-4 ${currentStep > step.id ? 'bg-blue-600' : 'bg-gray-300'
-                          }`} />
-                      )}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{step.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{step.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
           </div>
           <div className="mt-4">
-            <Progress value={(currentStep / steps.length) * 100} className="w-full h-2 bg-gray-200" />
+            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                style={{ width: `${(currentStep / steps.length) * 100}%` }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -617,20 +806,43 @@ export function AddProject() {
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                disabled={currentStep === 1}
+                disabled={currentStep === 1 || isSubmitting}
                 className="flex items-center"
+                type="button"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Previous
               </Button>
 
               {currentStep === steps.length ? (
-                <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 flex items-center">
-                  <Check className="h-4 w-4 mr-2" />
-                  Submit Project
+                <Button 
+                  onClick={handleSubmit} 
+                  className="bg-green-600 hover:bg-green-700 flex items-center"
+                  disabled={isSubmitting}
+                  type="button"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-2" />
+                      Submit Project
+                    </>
+                  )}
                 </Button>
               ) : (
-                <Button onClick={handleNext} className="flex items-center">
+                <Button 
+                  onClick={handleNext} 
+                  className="bg-blue-600 hover:bg-blue-700 flex items-center"
+                  disabled={isSubmitting}
+                  type="button"
+                >
                   Next
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
@@ -697,17 +909,22 @@ function StepBasicInfo({ projectData, setProjectData }: any) {
           </div>
 
           <div>
-            <Label htmlFor="priorityLevel">Priority Level</Label>
+            <Label htmlFor="priority">Priority Level</Label>
             <Select
-              value={projectData.priorityLevel}
-              onValueChange={(value) => setProjectData((prev: any) => ({ ...prev, priorityLevel: value }))}
+              value={projectData.priority}
+              onValueChange={(value) => setProjectData((prev: any) => ({ 
+                ...prev, 
+                priority: value as 'low' | 'medium' | 'high' | 'urgent' 
+              }))}
             >
               <SelectTrigger className="mt-1">
                 <SelectValue placeholder="Select priority level" />
               </SelectTrigger>
               <SelectContent>
                 {priorityLevels.map((level) => (
-                  <SelectItem key={level} value={level}>{level}</SelectItem>
+                  <SelectItem key={level.value} value={level.value}>
+                    {level.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -796,6 +1013,27 @@ function ProjectTypeCard({ type, projectData, setProjectData }: any) {
 }
 
 function StepIndustry({ projectData, setProjectData, showPackages, selectedPackage, setSelectedPackage }: any) {
+  const [localIndustry, setLocalIndustry] = useState(projectData.industry || '');
+  
+  // Update local state when projectData.industry changes
+  useEffect(() => {
+    setLocalIndustry(projectData.industry || '');
+  }, [projectData.industry]);
+  
+  const handleIndustrySelect = (industryId: string) => {
+    const newIndustry = industryId === localIndustry ? '' : industryId;
+    setLocalIndustry(newIndustry);
+    
+    setProjectData((prev: any) => ({
+      ...prev,
+      industry: newIndustry
+    }));
+    
+    // Clear package selection when changing industry
+    if (selectedPackage) {
+      setSelectedPackage('');
+    }
+  };
   return (
     <div className="space-y-6">
       <Card>
@@ -815,15 +1053,22 @@ function StepIndustry({ projectData, setProjectData, showPackages, selectedPacka
                 whileTap={{ scale: 0.98 }}
               >
                 <Card
-                  className={`cursor-pointer transition-all ${projectData.industry === industry.id
-                    ? 'ring-2 ring-blue-500 bg-blue-50'
-                    : 'hover:shadow-md'
-                    }`}
-                  onClick={() => setProjectData((prev: any) => ({ ...prev, industry: industry.id }))}
+                  className={`cursor-pointer transition-all transform hover:scale-[1.02] ${
+                    localIndustry === industry.id
+                      ? 'ring-2 ring-blue-500 bg-blue-50 border-blue-200'
+                      : 'border-gray-200 hover:shadow-md hover:border-blue-100'
+                  }`}
+                  onClick={() => handleIndustrySelect(industry.id)}
                 >
                   <CardContent className="p-6">
                     <h3 className="font-semibold text-lg mb-2">{industry.title}</h3>
                     <p className="text-gray-600 text-sm mb-3">{industry.description}</p>
+                    {localIndustry === industry.id && (
+                      <div className="mt-2 text-xs text-blue-600 font-medium">
+                        <Check className="inline h-3 w-3 mr-1" />
+                        Selected
+                      </div>
+                    )}
                     <Badge variant="outline">
                       {industry.multiplier < 1 ? 'Budget Friendly' :
                         industry.multiplier > 1.5 ? 'Premium' : 'Standard'}
@@ -1299,7 +1544,7 @@ function StepTheme({ projectData, setProjectData, inspirationLink, setInspiratio
           </div>
 
           <div>
-            <Label htmlFor="reference">Upload Reference Images (Optional)</Label>
+            <Label>Upload Reference Images (Optional)</Label>
             <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
               <p className="text-gray-600">Drag and drop images or click to browse (max 5MB)</p>
@@ -1550,7 +1795,7 @@ function StepSummary({ projectData }: any) {
                 </div>
                 <div>
                   <Label>Priority Level</Label>
-                  <p>{projectData.priorityLevel}</p>
+                  <p className="capitalize">{projectData.priority}</p>
                 </div>
                 <div>
                   <Label>Maintenance Plan</Label>
@@ -1765,8 +2010,14 @@ function BudgetPanel({ projectData, selectedPackage }: any) {
       <CardContent>
         <div className="space-y-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{formatCurrency(projectData.budget.inr)}</div>
-            <div className="text-gray-500">${projectData.budget.usd}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {projectData.budget ? formatCurrency(projectData.budget) : 'Calculating...'}
+            </div>
+            {projectData.budget && (
+              <div className="text-gray-500">
+                ${Math.round(Number(projectData.budget) / 75)} USD
+              </div>
+            )}
           </div>
 
           <Separator />
