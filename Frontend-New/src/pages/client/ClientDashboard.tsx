@@ -92,6 +92,9 @@ export function ClientDashboard() {
 
 
         {/* Other Routes  */}
+        {/* <Route path="/labs" element={<ClientLabs />} /> */}
+        {/* <Route path="/new" element={<ClientNew />} /> */}
+        {/* <Route path="/upcoming" element={<ClientUpcoming />} /> */}
 
 
 
