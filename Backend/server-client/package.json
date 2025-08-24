@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "test:auth": "node --experimental-json-modules --no-warnings scripts/test-auth.js",
+    "test": "npm run test:auth"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -26,12 +28,6 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.1",
     "rate-limit-mongo": "^2.3.2"
-  },
-  "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "test:auth": "node --experimental-json-modules --no-warnings scripts/test-auth.js",
-    "test": "npm run test:auth"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
