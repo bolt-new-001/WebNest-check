@@ -57,35 +57,36 @@ export function AuthPage() {
     setIsLoading(true)
     try {
       const response = await clientApi.login(data)
-      
-      if (response.data && response.data.message) {
-        if (response.data.message === 'Email not verified') {
-          setIsOtpVerification(true)
-          setOtpEmail(data.email)
-          toast.info('Please verify your email using the OTP sent to your email.')
-          return
-        } else if (response.data.message === 'Invalid credentials') {
-          toast.error('Invalid email or password')
-          return
-        }
-      }
+      console.log('Login response:', response)
 
-      const userData = response.data
-      
-      if (!userData || !userData.token) {
-        throw new Error('Invalid login response structure')
-      }
-
-      if (!userData.isEmailVerified) {
+      // Handle needs verification case
+      if (response.needsVerification) {
         setIsOtpVerification(true)
         setOtpEmail(data.email)
-        toast.info('Please verify your email using the OTP sent to your email.')
+        toast.info('Please verify your email first')
         return
       }
 
-      login(userData, userData.token)
+      // Handle error cases
+      if (!response.success) {
+        toast.error(response.message || 'Login failed')
+        return
+      }
+
+      // Handle successful login with proper data structure
+      const userData = response.data?.user || response.user
+      const token = response.data?.token || response.token
+
+      if (!userData || !token) {
+        toast.error('Invalid login response from server')
+        return
+      }
+
+      // Successful login
+      login(userData, token)
       toast.success('Welcome back!')
 
+      // Navigate based on role
       if (userData.role === 'admin' || userData.role === 'owner') {
         navigate('/admin')
       } else if (userData.role === 'developer' || userData.role === 'leadDeveloper') {
@@ -94,9 +95,10 @@ export function AuthPage() {
         navigate('/client')
       }
     } catch (error: any) {
+      console.error('Login error details:', error)
       const errorMessage = error.response?.data?.message || 
                          error.message || 
-                         'Login failed. Please try again.';
+                         'Login failed. Please check your credentials and try again.'
       toast.error(errorMessage)
     } finally {
       setIsLoading(false)
@@ -112,20 +114,25 @@ export function AuthPage() {
         password: data.password,
         role: userType // Include the selected role
       })
+
+      console.log('Register API response:', response)
       
-      if (response.data && response.data.message) {
-        if (response.data.message === 'Registration successful. Please check your email for verification code.') {
-          setIsOtpVerification(true)
-          setOtpEmail(data.email)
-          toast.success('Registration successful! Please check your email for the verification code.')
-          return
-        } else if (response.data.message === 'User already exists') {
-          toast.error('This email is already registered')
-          return
-        }
+      // Check if registration was successful
+      if (response.success && response.message) {
+        // Show OTP verification form
+        setIsOtpVerification(true)
+        setOtpEmail(data.email)
+        toast.success('Registration successful! Please verify your email with the OTP sent to your inbox.')
+        return
       }
       
-      throw new Error('Unexpected registration response')
+      // Handle other cases
+      if (response.message === 'User already exists') {
+        toast.error('This email is already registered')
+        return
+      }
+
+      throw new Error('Registration failed. Please try again.')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 
                          error.message || 
@@ -138,39 +145,58 @@ export function AuthPage() {
   }
 
   const handleOtpVerify = async (email: string, otp: string) => {
+    if (!otp || otp.length !== 6) {
+      toast.error('Please enter a valid 6-digit OTP code')
+      return
+    }
+
     setIsLoading(true)
     try {
       const response = await clientApi.verifyEmail({ email, otp })
+      console.log('OTP Verification response:', response)
       
-      if (response.data && response.data.message) {
-        if (response.data.message === 'Email verified successfully') {
+      // Handle successful verification
+      if (response.success) {
+        // Extract user data and token from the response
+        const userData = response.data?.user
+        const token = response.data?.token
+
+        if (userData && token) {
           toast.success('Email verified successfully!')
           setIsOtpVerification(false)
           setOtpEmail('')
           
-          // Get user data after verification
-          const userData = response.data.user
+          // Update auth store with verified user data
+          login(userData, token)
           
-          // Login with verified user
-          login(userData, userData.token)
-          
-          // Navigate to client dashboard
-          navigate('/client')
-        } else if (response.data.message === 'Invalid OTP') {
-          toast.error('Invalid OTP. Please try again.')
-        } else {
-          toast.error('Verification failed. Please try again.')
+          // Navigate based on role
+          if (userData.role === 'admin' || userData.role === 'owner') {
+            navigate('/admin')
+          } else if (userData.role === 'developer') {
+            navigate('/developer')
+          } else {
+            navigate('/client')
+          }
+          return
         }
+      }
+      
+      // Handle verification errors
+      if (response.message === 'Invalid OTP') {
+        toast.error('Invalid OTP code. Please try again.')
+      } else if (response.message === 'OTP expired') {
+        toast.error('OTP has expired. Please register again to receive a new code.')
+        setIsOtpVerification(false)
       } else {
-        toast.error('No response from server. Please try again.')
+        toast.error(response.message || 'Verification failed. Please try again.')
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 
-                         error.message || 
-                         'Verification failed. Please try again.';
-      toast.error(errorMessage)
+                        error.message || 
+                        'Verification failed. Please try again.';
+      toast.error(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -311,7 +337,14 @@ export function AuthPage() {
                         {...loginForm.register('otp')}
                       />
                       <Button
-                        onClick={() => handleOtpVerify(otpEmail, loginForm.getValues('otp'))}
+                        onClick={() => {
+                          const otp = loginForm.getValues('otp')
+                          if (otp) {
+                            handleOtpVerify(otpEmail, otp)
+                          } else {
+                            toast.error('Please enter OTP')
+                          }
+                        }}
                         className="w-full" size="lg" loading={isLoading}
                       >
                         {isLoading ? 'Verifying...' : 'Verify OTP'}
@@ -391,7 +424,14 @@ export function AuthPage() {
                         {...registerForm.register('otp')}
                       />
                       <Button
-                        onClick={() => handleOtpVerify(otpEmail, registerForm.getValues('otp'))}
+                        onClick={() => {
+                          const otp = registerForm.getValues('otp')
+                          if (otp) {
+                            handleOtpVerify(otpEmail, otp)
+                          } else {
+                            toast.error('Please enter OTP')
+                          }
+                        }}
                         className="w-full" size="lg" loading={isLoading}
                       >
                         {isLoading ? 'Verifying...' : 'Verify OTP'}

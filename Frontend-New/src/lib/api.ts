@@ -45,7 +45,7 @@ api.interceptors.response.use(
   (response) => {
     // For successful responses, ensure consistent structure
     if (response.data) {
-      // If the response already has a success flag, use it as is
+      // If the response already has a success flag, return as is
       if (response.data.success !== undefined) {
         return response;
       }
@@ -60,42 +60,53 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error: AxiosError) => {
+  (error: AxiosError<{ message?: string; error?: string }>) => {
     // Handle network errors
     if (!error.response) {
       console.error('Network Error:', error.message);
-      return Promise.reject({
-        response: {
-          data: {
-            success: false,
-            message: 'Network Error: Unable to connect to the server.'
-          },
-          status: 0
+      return {
+        data: {
+          success: false,
+          message: 'Network Error: Unable to connect to the server.'
         }
-      });
+      };
     }
 
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401) {
+    // Don't handle 401 as session expiry during auth operations
+    if (error.response?.status === 401 && 
+        error.config?.url && 
+        !error.config.url.includes('/auth/')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/auth';
-      return Promise.reject({
-        response: {
-          ...error.response,
-          data: {
-            success: false,
-            message: 'Your session has expired. Please log in again.'
-          }
+      // Only redirect if not on auth page
+      if (!window.location.pathname.includes('/auth')) {
+        window.location.href = '/auth';
+      }
+      return {
+        data: {
+          success: false,
+          message: 'Your session has expired. Please log in again.'
         }
-      });
+      };
     }
 
-    // Handle other errors
-    const errorMessage = error.response?.data?.message || 
-                        error.response?.data?.error || 
+    // Get error message from response or fallback
+    const responseData = error.response.data || {};
+    const errorMessage = responseData.message || 
+                        responseData.error || 
                         'An unexpected error occurred';
-    
+
+    // Handle login-specific errors
+    if (error.config?.url?.includes('/auth/login')) {
+      return {
+        data: {
+          success: false,
+          message: responseData.message || 'Invalid credentials'
+        }
+      };
+    }
+
+    // Log error details
     console.error('API Error:', {
       status: error.response?.status,
       message: errorMessage,
@@ -103,41 +114,109 @@ api.interceptors.response.use(
       method: error.config?.method
     });
 
-    // Ensure consistent error response structure
-    return Promise.reject({
-      response: {
-        ...error.response,
-        data: {
-          success: false,
-          message: errorMessage,
-          ...(error.response?.data || {})
-        }
+    // Return a consistent error response structure
+    return {
+      data: {
+        success: false,
+        message: errorMessage
       }
-    });
+    };
   }
 );
 
-// ✅ Client API
-export const clientApi = {
-  // Authentication
-  login: async (credentials: { email: string, password: string }) => {
-    const response = await api.post('/api/auth/login', credentials)
-    return response.data
-  },
+  // ✅ Client API
+export const clientApi = {  verifyEmail: async (data: { email: string, otp: string }) => {
+    try {
+      // Create a new instance without interceptors for verification
+      const verifyApi = axios.create({
+        baseURL: API_BASE_URL,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-  register: async (userData: {
-    name: string,
-    email: string,
-    password: string,
-    role: string
-  }) => {
-    const response = await api.post('/api/auth/register', userData)
-    return response.data
-  },
+      const response = await verifyApi.post('/api/auth/verify-email', data)
+      console.log('Verify Email API response:', response.data)
 
-  verifyEmail: async (data: { email: string, otp: string }) => {
-    const response = await api.post('/api/auth/verify-email', data)
-    return response.data
+      const responseData = response.data
+
+      // Handle error cases first
+      if (!responseData.success) {
+        return {
+          success: false,
+          message: responseData.message || 'Verification failed'
+        }
+      }
+
+      // Handle the case where user data is directly in data field
+      if (responseData.data && typeof responseData.data === 'object') {
+        const userData = responseData.data
+
+        // If we have a user object directly
+        if (userData._id && userData.email) {
+          // Get token from response data
+          const token = userData.token || responseData.token
+
+          if (!token) {
+            return {
+              success: false,
+              message: 'No authentication token received'
+            }
+          }
+
+          // Make sure the user is marked as verified
+          if (!userData.isEmailVerified) {
+            return {
+              success: false,
+              message: 'Email verification status not updated on server'
+            }
+          }
+
+          // Store the verified user data and token
+          localStorage.setItem('token', token)
+          localStorage.setItem('user', JSON.stringify(userData))
+
+          // Update the default api instance headers with the new token
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+          return {
+            success: true,
+            data: {
+              user: userData,
+              token
+            }
+          }
+        }
+      }
+
+      // Handle nested format
+      if (responseData.data?.user && responseData.data?.token) {
+        const { user, token } = responseData.data
+
+        if (!user.isEmailVerified) {
+          return {
+            success: false,
+            message: 'Email verification status not updated on server'
+          }
+        }
+
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
+        return responseData
+      }
+
+      console.error('Unexpected verification response format:', responseData)
+      return {
+        success: false,
+        message: 'Invalid response format from server'
+      }
+    } catch (error: any) {
+      console.error('Email verification error:', error)
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Email verification failed'
+      }
+    }
   },
 
   // Security
@@ -187,29 +266,129 @@ export const clientApi = {
 
   // Auth
   login: async (data: { email: string; password: string }) => {
-    const res = await api.post('/api/auth/login', data)
-    const { token, user } = res.data
+    try {
+      const response = await api.post('/api/auth/login', data)
+      console.log('Login API response:', response.data)
 
-    // Store token and user
-    localStorage.setItem('token', token)
-    localStorage.setItem('user', JSON.stringify(user))
+      // If the response itself is missing
+      if (!response || !response.data) {
+        return {
+          success: false,
+          message: 'No response from server'
+        }
+      }
 
-    return res.data
+      const responseData = response.data
+
+      // Check if there's an error message in the response
+      if (responseData.message && !responseData.success) {
+        return {
+          success: false,
+          message: responseData.message
+        }
+      }
+
+      // Handle the case where user data is directly in data field
+      if (responseData.success && responseData.data && typeof responseData.data === 'object') {
+        const userData = responseData.data
+        
+        if (userData._id && userData.email) {  // This is a user object
+          // Check email verification
+          if (!userData.isEmailVerified) {
+            return {
+              success: false,
+              message: 'Please verify your email first',
+              needsVerification: true,
+              email: data.email
+            }
+          }
+
+          // Get token from headers or response
+          const token = response.headers?.authorization?.split(' ')[1] || userData.token
+
+          if (!token) {
+            return {
+              success: false,
+              message: 'No authentication token received'
+            }
+          }
+
+          // Store user data and token
+          localStorage.setItem('token', token)
+          localStorage.setItem('user', JSON.stringify(userData))
+          
+          return {
+            success: true,
+            data: {
+              user: userData,
+              token
+            }
+          }
+        }
+      }
+
+      // Check nested format
+      if (responseData.data?.user && responseData.data?.token) {
+        const { user, token } = responseData.data
+
+        if (!user.isEmailVerified) {
+          return {
+            success: false,
+            message: 'Please verify your email first',
+            needsVerification: true,
+            email: data.email
+          }
+        }
+
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
+        return responseData
+      }
+
+      console.error('Unexpected response format:', responseData)
+      return {
+        success: false,
+        message: 'Invalid response format from server'
+      }
+    } catch (error: any) {
+      console.error('Login error details:', error.response?.data || error)
+      // Return a properly structured error response
+      return {
+        success: false,
+        message: error.response?.data?.message || 
+                error.message || 
+                'Login failed. Please check your credentials and try again.'
+      }
+    }
   },
    
 
-  register: async (data: { name: string; email: string; password: string }) => {
-    // Add user type to registration data
-    const registerData = {
-      ...data,
-      role: 'client' // Set default role for client API
+  register: async (data: { 
+    name: string; 
+    email: string; 
+    password: string;
+    role?: string;
+  }) => {
+    try {
+      // Add user type to registration data if not provided
+      const registerData = {
+        ...data,
+        role: data.role || 'client' // Use provided role or default to 'client'
+      }
+      
+      const response = await api.post('/api/auth/register', registerData)
+      console.log('Register API response:', response.data)
+      
+      // Return the response data directly
+      if (response.data) {
+        return response.data
+      }
+      
+      throw new Error('No response data received')
+    } catch (error: any) {
+      console.error('Registration error:', error)
+      throw error
     }
-    
-    const response = await api.post('/api/auth/register', registerData)
-    console.log('Register API response:', response.data)
-    
-    // Return the entire response data which includes success and data properties
-    return response.data
   },
 
   getProfile: () => api.get('/api/auth/me'),

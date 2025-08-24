@@ -65,6 +65,24 @@ adminSchema.pre('save', async function(next) {
     next();
   } catch (error) {
     next(error);
+  adminSchema.add({
+    otp: {
+      type: String,
+      default: null
+    },
+    otpExpiry: {
+      type: Date,
+      default: null
+    },
+    otpAttempts: {
+      type: Number,
+      default: 0
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
+    }
+  });
   }
 });
 

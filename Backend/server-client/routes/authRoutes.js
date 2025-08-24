@@ -20,6 +20,6 @@ router.get('/me', protect, getMe);
 router.post('/forgot-password', forgotPassword);
 router.put('/reset-password/:resetToken', resetPassword);
 router.put('/update-password', protect, updatePassword);
-router.get('/verify-email/:token', verifyEmail);
+router.post('/verify-email', verifyEmail);
 
 export default router;
