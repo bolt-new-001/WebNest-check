@@ -117,25 +117,8 @@ api.interceptors.response.use(
   }
 );
 
-// ✅ Client API
-export const clientApi = {
-  // Authentication
-  login: async (credentials: { email: string, password: string }) => {
-    const response = await api.post('/api/auth/login', credentials)
-    return response.data
-  },
-
-  register: async (userData: {
-    name: string,
-    email: string,
-    password: string,
-    role: string
-  }) => {
-    const response = await api.post('/api/auth/register', userData)
-    return response.data
-  },
-
-  verifyEmail: async (data: { email: string, otp: string }) => {
+  // ✅ Client API
+export const clientApi = {  verifyEmail: async (data: { email: string, otp: string }) => {
     const response = await api.post('/api/auth/verify-email', data)
     return response.data
   },
@@ -198,18 +181,32 @@ export const clientApi = {
   },
    
 
-  register: async (data: { name: string; email: string; password: string }) => {
-    // Add user type to registration data
-    const registerData = {
-      ...data,
-      role: 'client' // Set default role for client API
+  register: async (data: { 
+    name: string; 
+    email: string; 
+    password: string;
+    role?: string;
+  }) => {
+    try {
+      // Add user type to registration data if not provided
+      const registerData = {
+        ...data,
+        role: data.role || 'client' // Use provided role or default to 'client'
+      }
+      
+      const response = await api.post('/api/auth/register', registerData)
+      console.log('Register API response:', response.data)
+      
+      // Return the response data directly
+      if (response.data) {
+        return response.data
+      }
+      
+      throw new Error('No response data received')
+    } catch (error: any) {
+      console.error('Registration error:', error)
+      throw error
     }
-    
-    const response = await api.post('/api/auth/register', registerData)
-    console.log('Register API response:', response.data)
-    
-    // Return the entire response data which includes success and data properties
-    return response.data
   },
 
   getProfile: () => api.get('/api/auth/me'),

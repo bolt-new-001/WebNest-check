@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import Admin from '../models/Admin.js';
 import { generateToken } from '../utils/generateToken.js';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/sendEmail.js';
 
 // @desc    Login admin
 // @route   POST /api/auth/login
@@ -11,29 +13,49 @@ export const login = asyncHandler(async (req, res) => {
   // Check for admin
   const admin = await Admin.findOne({ email }).select('+password');
 
-  if (admin && (await admin.comparePassword(password))) {
-    // Update last login
-    admin.lastLogin = new Date();
-    admin.loginHistory.push({
-      ip: req.ip,
-      userAgent: req.get('User-Agent')
-    });
-    await admin.save();
-
-    res.json({
-      success: true,
-      data: {
-        _id: admin._id,
-        name: admin.name,
-        email: admin.email,
-        role: admin.role,
-        permissions: admin.permissions,
-        token: generateToken(admin._id)
+    if (admin && (await admin.comparePassword(password))) {
+      // If not verified, generate/send OTP
+      if (!admin.isVerified) {
+        // Generate OTP
+        const otp = crypto.randomInt(100000, 999999).toString();
+        admin.otp = otp;
+        admin.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 min expiry
+        admin.otpAttempts = 0;
+        await admin.save();
+        // Send OTP email
+        await sendEmail({
+          to: admin.email,
+          subject: 'Your OTP Code',
+          text: `Your OTP code is: ${otp}`,
+          html: `<p>Your OTP code is: <b>${otp}</b></p>`
+        });
+        return res.status(200).json({
+          success: true,
+          message: 'OTP sent to your email. Please verify to continue.',
+          requireOTP: true
+        });
       }
-    });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
-  }
+      // Verified: proceed to login
+      admin.lastLogin = new Date();
+      admin.loginHistory.push({
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      await admin.save();
+      res.json({
+        success: true,
+        data: {
+          _id: admin._id,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role,
+          permissions: admin.permissions,
+          token: generateToken(admin._id)
+        }
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid credentials' });
+    }
 });
 
 // @desc    Get current admin
@@ -94,17 +116,65 @@ export const createAdmin = asyncHandler(async (req, res) => {
     name,
     email,
     password,
-    permissions
+    permissions,
+    isVerified: false
   });
-
+  // Generate OTP
+  const otp = crypto.randomInt(100000, 999999).toString();
+  admin.otp = otp;
+  admin.otpExpiry = Date.now() + 10 * 60 * 1000;
+  admin.otpAttempts = 0;
+  await admin.save();
+  // Send OTP email
+  await sendEmail({
+    to: admin.email,
+    subject: 'Your OTP Code',
+    text: `Your OTP code is: ${otp}`,
+    html: `<p>Your OTP code is: <b>${otp}</b></p>`
+  });
   res.status(201).json({
     success: true,
-    data: {
-      _id: admin._id,
-      name: admin.name,
-      email: admin.email,
-      role: admin.role,
-      permissions: admin.permissions
-    }
+    message: 'Admin created. OTP sent to email. Please verify.',
+    requireOTP: true
   });
+});
+
+// @desc    Verify OTP
+// @route   POST /api/auth/verify-otp
+// @access  Public
+export const verifyOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+  const admin = await Admin.findOne({ email });
+  if (!admin) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  if (admin.isVerified) {
+    return res.status(400).json({ message: 'User already verified' });
+  }
+  if (!admin.otp || !admin.otpExpiry) {
+    return res.status(400).json({ message: 'No OTP generated. Please request again.' });
+  }
+  if (Date.now() > admin.otpExpiry) {
+    admin.otp = null;
+    admin.otpExpiry = null;
+    await admin.save();
+    return res.status(400).json({ message: 'OTP expired. Please request a new one.' });
+  }
+  if (admin.otpAttempts >= 5) {
+    admin.isActive = false;
+    await admin.save();
+    return res.status(403).json({ message: 'Account locked due to too many failed attempts.' });
+  }
+  if (otp !== admin.otp) {
+    admin.otpAttempts += 1;
+    await admin.save();
+    return res.status(400).json({ message: 'Invalid OTP. Please try again.' });
+  }
+  // Success: verify user
+  admin.isVerified = true;
+  admin.otp = null;
+  admin.otpExpiry = null;
+  admin.otpAttempts = 0;
+  await admin.save();
+  res.json({ success: true, message: 'OTP verified. You can now log in.' });
 });

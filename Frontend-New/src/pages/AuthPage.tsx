@@ -112,20 +112,36 @@ export function AuthPage() {
         password: data.password,
         role: userType // Include the selected role
       })
+
+      console.log('Register API response:', response)
       
-      if (response.data && response.data.message) {
-        if (response.data.message === 'Registration successful. Please check your email for verification code.') {
-          setIsOtpVerification(true)
-          setOtpEmail(data.email)
-          toast.success('Registration successful! Please check your email for the verification code.')
-          return
-        } else if (response.data.message === 'User already exists') {
-          toast.error('This email is already registered')
-          return
+      // Case 1: Response contains direct user data with token
+      if (response._id && response.token) {
+        login(response, response.token)
+        toast.success('Registration successful!')
+        
+        // Navigate based on role
+        if (response.role === 'admin' || response.role === 'owner') {
+          navigate('/admin')
+        } else if (response.role === 'developer') {
+          navigate('/developer')
+        } else {
+          navigate('/client')
         }
+        return
       }
       
-      throw new Error('Unexpected registration response')
+      // Case 2: Response is wrapped in a success object with message
+      if (response.success && response.message) {
+        // Set up OTP verification
+        setIsOtpVerification(true)
+        setOtpEmail(data.email)
+        toast.success(response.message)
+        return
+      }
+
+      // If we get here, something unexpected happened
+      throw new Error('Unexpected response format from server')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 
                          error.message || 
@@ -311,7 +327,14 @@ export function AuthPage() {
                         {...loginForm.register('otp')}
                       />
                       <Button
-                        onClick={() => handleOtpVerify(otpEmail, loginForm.getValues('otp'))}
+                        onClick={() => {
+                          const otp = loginForm.getValues('otp')
+                          if (otp) {
+                            handleOtpVerify(otpEmail, otp)
+                          } else {
+                            toast.error('Please enter OTP')
+                          }
+                        }}
                         className="w-full" size="lg" loading={isLoading}
                       >
                         {isLoading ? 'Verifying...' : 'Verify OTP'}
@@ -391,7 +414,14 @@ export function AuthPage() {
                         {...registerForm.register('otp')}
                       />
                       <Button
-                        onClick={() => handleOtpVerify(otpEmail, registerForm.getValues('otp'))}
+                        onClick={() => {
+                          const otp = registerForm.getValues('otp')
+                          if (otp) {
+                            handleOtpVerify(otpEmail, otp)
+                          } else {
+                            toast.error('Please enter OTP')
+                          }
+                        }}
                         className="w-full" size="lg" loading={isLoading}
                       >
                         {isLoading ? 'Verifying...' : 'Verify OTP'}
