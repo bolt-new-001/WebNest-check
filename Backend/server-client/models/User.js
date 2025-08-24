@@ -101,7 +101,17 @@ const userSchema = new mongoose.Schema({
     lastUsed: Date,
     device: String,
     location: String
-  }]
+  }],
+  otpAttempts: {
+    count: { type: Number, default: 0 },
+    lastAttempt: Date,
+    blockedUntil: Date
+  },
+  loginAttempts: {
+    count: { type: Number, default: 0 },
+    lastAttempt: Date,
+    blockedUntil: Date
+  }
 }, {
   timestamps: true
 });

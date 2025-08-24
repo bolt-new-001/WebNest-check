@@ -2,7 +2,21 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import asyncHandler from 'express-async-handler';
 
+// Array of public routes that don't require authentication
+const publicRoutes = [
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/verify-email',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password'
+];
+
 export const protect = asyncHandler(async (req, res, next) => {
+  // Check if the route is public
+  if (publicRoutes.includes(req.path)) {
+    return next();
+  }
+
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -13,17 +27,24 @@ export const protect = asyncHandler(async (req, res, next) => {
       req.user = await User.findById(decoded.id).select('-password');
       
       if (!req.user) {
-        return res.status(401).json({ message: 'User not found' });
+        return res.status(401).json({ 
+          success: false,
+          message: 'User not found' 
+        });
       }
 
       next();
     } catch (error) {
-      return res.status(401).json({ message: 'Not authorized, token failed' });
+      return res.status(401).json({ 
+        success: false,
+        message: 'Not authorized, token failed' 
+      });
     }
-  }
-
-  if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+  } else if (!token) {
+    return res.status(401).json({ 
+      success: false,
+      message: 'Not authorized, no token' 
+    });
   }
 });
 
