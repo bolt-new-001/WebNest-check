@@ -265,6 +265,24 @@ export const clientApi = {  verifyEmail: async (data: { email: string, otp: stri
   },
 
   // Auth
+  forgotPassword: async (email: string) => {
+    try {
+      const response = await api.post<ApiResponse<{ message: string }>>('/api/auth/forgot-password', { email });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  resetPassword: async (token: string, password: string) => {
+    try {
+      const response = await api.put<ApiResponse<{ message: string }>>(`/api/auth/reset-password/${token}`, { password });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   login: async (data: { email: string; password: string }) => {
     try {
       const response = await api.post('/api/auth/login', data)

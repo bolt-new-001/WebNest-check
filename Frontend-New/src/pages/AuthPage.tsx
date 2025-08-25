@@ -386,7 +386,7 @@ export function AuthPage() {
                         <Button 
                           type="button" 
                           variant="link" 
-                          onClick={() => navigate('/auth/forgot')}
+                          onClick={() => navigate('/auth/forgot-password')}
                           className="text-sm text-primary hover:text-accent transition-colors"
                         >
                           Forgot Password?

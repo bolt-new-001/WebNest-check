@@ -34,6 +34,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 
 //Auth Pages
+import ForgotPasswordPage from '@/pages/auth/auth-forgot'
 import AuthType from '@/pages/auth/auth-home'
 import AuthClientPage from '@/pages/auth/auth-client'
 import AuthDevPage from '@/pages/auth/auth-dev'
@@ -57,6 +58,7 @@ function App() {
       <Route path="/careers" element={<Careers />} />
 
       <Route path="/auth/type" element={<AuthType />} />
+      <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/auth-type=client" element={<AuthClientPage />} />
       <Route path="/auth-type=dev" element={<AuthDevPage />} />
 

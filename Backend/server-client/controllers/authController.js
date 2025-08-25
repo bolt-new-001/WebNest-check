@@ -164,8 +164,8 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   user.passwordResetExpires = expiry;
   await user.save();
 
-  // Send reset email
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  // Send reset email with token as query parameter
+  const resetUrl = `${process.env.FRONTEND_URL}/auth/forgot-password?token=${resetToken}`;
   await emailService.sendEmail(
     user.email,
     'Password Reset Request',
