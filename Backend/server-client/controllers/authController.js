@@ -40,16 +40,22 @@ export const register = asyncHandler(async (req, res) => {
       emailService.emailTemplates.verification(otp, user.name)
     );
 
+    const responseData = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id)
+    };
+  
+    if (process.env.NODE_ENV1 === 'test') {
+      responseData.otp = otp;
+    }
+  
     res.status(201).json({
       success: true,
       message: 'Registration successful. Please check your email for verification code.',
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id)
-      }
+      data: responseData
     });
   } else {
     res.status(400).json({ message: 'Invalid user data' });
