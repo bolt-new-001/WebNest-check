@@ -35,8 +35,8 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 //Auth Pages
 import AuthType from '@/pages/auth/auth-home'
-import { AuthClientPage } from '@/pages/auth/auth-client'
-import { AuthDevPage } from '@/pages/auth/auth-dev'
+import AuthClientPage from '@/pages/auth/auth-client'
+import AuthDevPage from '@/pages/auth/auth-dev'
 
 
 function App() {
