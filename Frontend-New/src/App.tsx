@@ -31,6 +31,13 @@ import { DeveloperDashboard } from '@/pages/developer/DeveloperDashboard'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
+
+
+//Auth Pages
+import { AuthType } from '@/pages/auth/auth-home'
+
+
+
 function App() {
   const { user } = useAuthStore()
 
@@ -47,6 +54,10 @@ function App() {
       <Route path="/about" element={<AboutUs />} />
       <Route path="/contact" element={<ContactUs />} />
       <Route path="/careers" element={<Careers />} />
+
+      <Route path="/auth/type" element={<AuthType />} />
+      {/* <Route path="/auth?=client" element={<AuthClientPage />} /> */}
+      {/* <Route path="/auth?=dev" element={<AuthDevPage />} /> */}
 
       <Route path="/services/web" element={<WebDevelopment />} />
       <Route path="/services/mobile" element={<MobileApps />} />
