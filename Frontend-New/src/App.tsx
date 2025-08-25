@@ -36,7 +36,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 //Auth Pages
 import { AuthType } from '@/pages/auth/auth-home'
 import { AuthClientPage } from '@/pages/auth/auth-client'
-// import { AuthDevPage } from '@/pages/auth/auth-dev'
+import { AuthDevPage } from '@/pages/auth/auth-dev'
 
 
 function App() {
@@ -58,7 +58,7 @@ function App() {
 
       <Route path="/auth/type" element={<AuthType />} />
       <Route path="/auth-type=client" element={<AuthClientPage />} />
-      {/* <Route path="/auth?=dev" element={<AuthDevPage />} /> */}
+      <Route path="/auth-type=dev" element={<AuthDevPage />} />
 
       <Route path="/services/web" element={<WebDevelopment />} />
       <Route path="/services/mobile" element={<MobileApps />} />
