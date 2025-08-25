@@ -7,7 +7,7 @@ export const AuthType = () => {
 
   const handleSelect = (type: 'dev' | 'client') => {
     setSelectedType(type);
-    navigate(`/auth?type=${type}`);
+    navigate(`/auth-type=${type}`);
   };
 
   return (
