@@ -23,6 +23,10 @@ import ClientBackups from './ClientBackups'
 // import ClientPackageDetail from './ClientPackageDetail'
 // import  ClientPackageCustomize from './ClientPackageCustomize'
 
+
+import ChangePasswordPage from './Settings/password-change'
+
+
 export function ClientDashboard() {
   return (
     <ClientLayout>
@@ -78,6 +82,7 @@ export function ClientDashboard() {
         {/* <Route path="/settings/security" element={<ClientSettingsSecurity />} /> */}
         {/* <Route path="/settings/notifications" element={<ClientSettingsNotifications />} /> */}
         
+        <Route path="/settings/change-password" element={<ChangePasswordPage />} />
 
         {/* Communication Routes  */}
         {/* <Route path="/chat/groups" element={<ClientChatGroups />} /> */}
