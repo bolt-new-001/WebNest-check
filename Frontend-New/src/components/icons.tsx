@@ -1,16 +1,24 @@
 import * as React from "react"
-import { LucideProps } from "lucide-react"
+import type { LucideProps } from "lucide-react"
 
-type Icon = React.ForwardRefExoticComponent<LucideProps>
+type Icon = React.ForwardRefExoticComponent<Omit<LucideProps, 'ref'>> & {
+  displayName?: string
+}
 
-const createIcon = (Component: Icon) => {
-  return (props: LucideProps) => (
-    <Component
-      strokeWidth={1.5}
-      className="h-5 w-5"
-      {...props}
-    />
+const createIcon = (Component: React.ComponentType<LucideProps>): Icon => {
+  const IconComponent = React.forwardRef<SVGSVGElement, LucideProps>(
+    ({ className = '', ...props }, ref) => (
+      <Component
+        ref={ref}
+        className={`h-5 w-5 ${className}`.trim()}
+        strokeWidth={1.5}
+        {...props}
+      />
+    )
   )
+  
+  IconComponent.displayName = Component.displayName || 'Icon'
+  return IconComponent
 }
 
 export const Icons = {
