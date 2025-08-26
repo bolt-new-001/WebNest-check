@@ -410,6 +410,7 @@ export const clientApi = {  verifyEmail: async (data: { email: string, otp: stri
   },
 
   getProfile: () => api.get('/api/auth/me'),
+  getPublicProfile: (id: string) => api.get(`/api/profile/public/${id}`),
 
   // Project types
   Project: {

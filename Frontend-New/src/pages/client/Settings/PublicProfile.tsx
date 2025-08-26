@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,15 +13,21 @@ export default function PublicProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: profile, isLoading, error } = useQuery({
+  const { data: response, isLoading, error } = useQuery({
     queryKey: ['public-profile', id],
     queryFn: async () => {
-      const response = await fetch(`/api/client/profile/public/${id}`);
-      if (!response.ok) throw new Error('Profile not found');
-      return response.json();
+      try {
+        const response = await api.get(`/api/profile/public/${id}`);
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        throw new Error('Profile not found');
+      }
     },
     retry: 1,
   });
+
+  const profile = response?.data || response;
 
   if (isLoading) {
     return (

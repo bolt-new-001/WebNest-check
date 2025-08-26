@@ -5,14 +5,18 @@ import {
   uploadAvatar,
   deleteAccount,
   upgradeToPremium,
-  getStats
+  getStats,
+  getPublicProfile
 } from '../controllers/profileController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.use(protect); // All routes are protected
+// Public route
+router.get('/public/:id', getPublicProfile);
 
+// Protected routes
+router.use(protect);
 router.get('/', getProfile);
 router.put('/', updateProfile);
 router.post('/avatar', uploadAvatar);

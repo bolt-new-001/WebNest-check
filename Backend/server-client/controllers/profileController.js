@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 import Project from '../models/Project.js';
+import mongoose from 'mongoose';
 
 // @desc    Get user profile
 // @route   GET /api/profile
@@ -34,6 +35,55 @@ export const updateProfile = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: user
+  });
+});
+
+// @desc    Get public profile
+// @route   GET /api/profile/public/:id
+// @access  Public
+export const getPublicProfile = asyncHandler(async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(404);
+    throw new Error('Profile not found');
+  }
+
+  const user = await User.findById(req.params.id)
+    .select('name email phone company isPremium avatar isEmailVerified createdAt');
+
+  if (!user) {
+    res.status(404);
+    throw new Error('Profile not found');
+  }
+
+  // Get basic stats
+  const [
+    totalProjects,
+    completedProjects,
+    ratingResult
+  ] = await Promise.all([
+    Project.countDocuments({ client: req.params.id }),
+    Project.countDocuments({ client: req.params.id, status: 'completed' }),
+    Project.aggregate([
+      { $match: { 
+        client: new mongoose.Types.ObjectId(req.params.id), 
+        'rating': { $exists: true } 
+      } },
+      { $group: { _id: null, average: { $avg: "$rating" } } }
+    ])
+  ]);
+
+  const averageRating = ratingResult.length > 0 ? ratingResult[0].average.toFixed(1) : null;
+
+  res.json({
+    success: true,
+    data: {
+      ...user.toObject(),
+      stats: {
+        totalProjects,
+        completedProjects,
+        averageRating
+      }
+    }
   });
 });
 
