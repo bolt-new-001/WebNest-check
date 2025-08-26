@@ -24,8 +24,9 @@ import ClientBackups from './ClientBackups'
 // import  ClientPackageCustomize from './ClientPackageCustomize'
 
 
+//Setting Page Routes
 import ChangePasswordPage from './Settings/password-change'
-import TwoFactorAuthPage from './Settings/TwoFactorAuth'
+import { default as TwoFactorAuthPage } from './Settings/TwoFactorAuth'
 
 
 
@@ -85,7 +86,7 @@ export function ClientDashboard() {
         {/* <Route path="/settings/notifications" element={<ClientSettingsNotifications />} /> */}
         
         <Route path="/settings/change-password" element={<ChangePasswordPage />} />
-        <Route path="/setings/two-factor-auth" element={<TwoFactorAuthPage />} />
+        <Route path="/settings/two-factor-auth" element={<TwoFactorAuthPage />} />
 
 
 
