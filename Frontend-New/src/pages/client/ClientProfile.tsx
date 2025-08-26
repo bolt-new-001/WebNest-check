@@ -1,17 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { 
-  User, 
-  Edit, 
-  Star, 
-  Calendar, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Building, 
-  Crown, 
-  TrendingUp, 
-  Award, 
+import {
+  User,
+  Edit,
+  Star,
+  Calendar,
+  MapPin,
+  Phone,
+  Mail,
+  Building,
+  Crown,
+  TrendingUp,
+  Award,
   Clock,
   Settings,
   BarChart3,
@@ -45,7 +45,7 @@ export function ClientProfile() {
   const queryClient = useQueryClient()
 
   const { data: profile, isLoading, refetch: refetchProfile } = useQuery({
-    queryKey: ['profile', user?.id],
+    queryKey: ['profile', user?._id],
     queryFn: async () => {
       const response = await fetch('/api/client/profile')
       if (!response.ok) throw new Error('Failed to fetch profile')
@@ -58,7 +58,7 @@ export function ClientProfile() {
   })
 
   const { data: stats, refetch: refetchStats } = useQuery({
-    queryKey: ['profile-stats', user?.id],
+    queryKey: ['profile-stats', user?._id],
     queryFn: async () => {
       const response = await fetch('/api/client/profile/stats')
       if (!response.ok) throw new Error('Failed to fetch stats')
@@ -68,7 +68,7 @@ export function ClientProfile() {
   })
 
   const { data: recentActivity } = useQuery({
-    queryKey: ['profile-activity', user?.id],
+    queryKey: ['profile-activity', user?._id],
     queryFn: async () => {
       const response = await fetch('/api/client/profile/activity')
       if (!response.ok) throw new Error('Failed to fetch activity')
@@ -98,9 +98,35 @@ export function ClientProfile() {
   })
 
   const copyProfileLink = () => {
-    const profileUrl = `${window.location.origin}/client/profile/${user?.id}`
+    if (!user?._id) {
+      toast.error('User ID not found. Please try again.')
+      return
+    }
+    const profileUrl = `${window.location.origin}/client/profile/${user._id}`
     navigator.clipboard.writeText(profileUrl)
     toast.success('Profile link copied to clipboard')
+  }
+
+  // Add this CSS for the fade-in animation
+  const styles = `
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+`
+
+  // Inject styles if not already present
+  if (typeof document !== 'undefined' && !document.getElementById('profile-animations')) {
+    const styleSheet = document.createElement('style')
+    styleSheet.id = 'profile-animations'
+    styleSheet.textContent = styles
+    document.head.appendChild(styleSheet)
   }
 
   if (isLoading) {
@@ -129,7 +155,7 @@ export function ClientProfile() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button 
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={copyProfileLink}
@@ -138,8 +164,8 @@ export function ClientProfile() {
                 <Copy className="h-4 w-4 mr-2" />
                 Copy Link
               </Button>
-              <Button 
-                onClick={() => navigate('/client/settings')} 
+              <Button
+                onClick={() => navigate('/client/settings')}
                 className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <Settings className="h-4 w-4 mr-2" />
@@ -169,8 +195,8 @@ export function ClientProfile() {
                       </div>
                     )}
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => navigate('/client/settings')}
                     className="hover:bg-primary/10 transition-all duration-300"
@@ -179,7 +205,7 @@ export function ClientProfile() {
                     Edit Photo
                   </Button>
                 </div>
-                
+
                 {/* Profile Information */}
                 <div className="flex-1 space-y-6">
                   <div>
@@ -193,8 +219,8 @@ export function ClientProfile() {
                       )}
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Badge 
-                        variant={user?.isPremium ? 'default' : 'secondary'} 
+                      <Badge
+                        variant={user?.isPremium ? 'default' : 'secondary'}
                         className={`flex items-center gap-1 px-3 py-1 ${user?.isPremium ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' : ''}`}
                       >
                         {user?.isPremium && <Crown className="h-3 w-3" />}
@@ -206,7 +232,7 @@ export function ClientProfile() {
                       </Badge>
                     </div>
                   </div>
-                  
+
                   {/* Contact Information Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
@@ -219,7 +245,7 @@ export function ClientProfile() {
                           <p className="text-sm text-muted-foreground">{user?.email}</p>
                         </div>
                       </div>
-                      
+
                       {user?.phone && (
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors duration-200">
                           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -232,7 +258,7 @@ export function ClientProfile() {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="space-y-3">
                       {user?.company && (
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors duration-200">
@@ -245,7 +271,7 @@ export function ClientProfile() {
                           </div>
                         </div>
                       )}
-                      
+
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors duration-200">
                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                           <Calendar className="h-4 w-4 text-primary" />
@@ -253,10 +279,10 @@ export function ClientProfile() {
                         <div>
                           <p className="text-sm font-medium">Join Date</p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
+                            {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
                             })}
                           </p>
                         </div>
@@ -272,33 +298,41 @@ export function ClientProfile() {
           <Tabs defaultValue="overview" className="space-y-8">
             <div className="sticky top-4 z-10 bg-background/80 backdrop-blur-lg rounded-2xl border shadow-lg p-2">
               <TabsList className="grid w-full grid-cols-4 gap-1 bg-transparent">
-                <TabsTrigger 
-                  value="overview" 
+                <TabsTrigger
+                  value="overview"
                   className="flex items-center justify-center gap-2 p-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-300 rounded-xl"
                 >
-                  <Eye className="h-4 w-4" />
-                  <span className="text-sm font-medium">Overview</span>
+                  <div className="flex items-center space-x-2">
+                    <Eye className="h-4 w-4" />
+                    <span className="text-sm font-medium">Overview</span>
+                  </div>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="stats" 
+                <TabsTrigger
+                  value="stats"
                   className="flex items-center justify-center gap-2 p-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-300 rounded-xl"
                 >
-                  <BarChart3 className="h-4 w-4" />
-                  <span className="text-sm font-medium">Statistics</span>
+                  <div className="flex items-center space-x-2">
+                    <BarChart3 className="h-4 w-4" />
+                    <span className="text-sm font-medium">Statistics</span>
+                  </div>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="activity" 
+                <TabsTrigger
+                  value="activity"
                   className="flex items-center justify-center gap-2 p-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-300 rounded-xl"
                 >
-                  <Activity className="h-4 w-4" />
-                  <span className="text-sm font-medium">Activity</span>
+                  <div className="flex items-center space-x-2">
+                    <Activity className="h-4 w-4" />
+                    <span className="text-sm font-medium">Activity</span>
+                  </div>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="projects" 
+                <TabsTrigger
+                  value="projects"
                   className="flex items-center justify-center gap-2 p-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-300 rounded-xl"
                 >
-                  <Briefcase className="h-4 w-4" />
-                  <span className="text-sm font-medium">Projects</span>
+                  <div className="flex items-center space-x-2">
+                    <Briefcase className="h-4 w-4" />
+                    <span className="text-sm font-medium">Projects</span>
+                  </div>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -326,14 +360,14 @@ export function ClientProfile() {
                         {user?.isPremium ? 'Premium' : 'Basic'}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                       <span className="font-medium">Email Status</span>
                       <Badge variant={user?.isEmailVerified ? 'default' : 'destructive'} className="px-3 py-1">
                         {user?.isEmailVerified ? 'Verified' : 'Unverified'}
                       </Badge>
                     </div>
-                    
+
                     {user?.isPremium && user?.premiumExpiresAt && (
                       <div className="p-3 rounded-lg bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200">
                         <div className="flex items-center justify-between">
@@ -344,10 +378,10 @@ export function ClientProfile() {
                         </div>
                       </div>
                     )}
-                    
+
                     {!user?.isPremium && (
-                      <Button 
-                        onClick={() => navigate('/client/premium')} 
+                      <Button
+                        onClick={() => navigate('/client/premium')}
                         className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                       >
                         <Crown className="h-4 w-4 mr-2" />
@@ -380,7 +414,7 @@ export function ClientProfile() {
                         </div>
                         <p className="text-xl font-bold text-blue-800 mt-1">{stats?.data?.totalProjects || 0}</p>
                       </div>
-                      
+
                       <div className="p-3 rounded-lg bg-green-50 border border-green-200">
                         <div className="flex items-center gap-2">
                           <Award className="h-4 w-4 text-green-600" />
@@ -389,24 +423,24 @@ export function ClientProfile() {
                         <p className="text-xl font-bold text-green-800 mt-1">{stats?.data?.completedProjects || 0}</p>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Project Completion Rate</span>
                         <span className="font-semibold">
-                          {stats?.data?.totalProjects > 0 
-                            ? Math.round((stats?.data?.completedProjects / stats?.data?.totalProjects) * 100) 
+                          {stats?.data?.totalProjects > 0
+                            ? Math.round((stats?.data?.completedProjects / stats?.data?.totalProjects) * 100)
                             : 0}%
                         </span>
                       </div>
-                      <Progress 
-                        value={stats?.data?.totalProjects > 0 
-                          ? (stats?.data?.completedProjects / stats?.data?.totalProjects) * 100 
-                          : 0} 
+                      <Progress
+                        value={stats?.data?.totalProjects > 0
+                          ? (stats?.data?.completedProjects / stats?.data?.totalProjects) * 100
+                          : 0}
                         className="h-2"
                       />
                     </div>
-                    
+
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                       <span className="font-medium">Average Rating</span>
                       <div className="flex items-center gap-1">
@@ -431,8 +465,8 @@ export function ClientProfile() {
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 space-y-3">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full justify-start hover:bg-primary/10 transition-all duration-300"
                       onClick={() => navigate('/client/add-project')}
                     >
@@ -440,9 +474,9 @@ export function ClientProfile() {
                       Create New Project
                       <ChevronRight className="h-4 w-4 ml-auto" />
                     </Button>
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full justify-start hover:bg-primary/10 transition-all duration-300"
                       onClick={() => navigate('/client/projects')}
                     >
@@ -450,9 +484,9 @@ export function ClientProfile() {
                       View All Projects
                       <ChevronRight className="h-4 w-4 ml-auto" />
                     </Button>
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full justify-start hover:bg-primary/10 transition-all duration-300"
                       onClick={() => navigate('/client/support')}
                     >
@@ -460,11 +494,11 @@ export function ClientProfile() {
                       Contact Support
                       <ChevronRight className="h-4 w-4 ml-auto" />
                     </Button>
-                    
+
                     <Separator className="my-4" />
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full justify-start hover:bg-primary/10 transition-all duration-300"
                       onClick={() => navigate('/client/settings/export-data')}
                     >
@@ -510,7 +544,7 @@ export function ClientProfile() {
                     change: '+15%'
                   }
                 ].map((stat, index) => (
-                  <Card 
+                  <Card
                     key={stat.title}
                     className="group overflow-hidden border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-105"
                     style={{
@@ -525,28 +559,25 @@ export function ClientProfile() {
                           <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
                           <p className="text-2xl font-bold">{stat.value}</p>
                           <div className="flex items-center gap-1">
-                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                              stat.color === 'blue' ? 'bg-blue-100 text-blue-700' :
-                              stat.color === 'green' ? 'bg-green-100 text-green-700' :
-                              stat.color === 'orange' ? 'bg-orange-100 text-orange-700' :
-                              'bg-purple-100 text-purple-700'
-                            }`}>
+                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${stat.color === 'blue' ? 'bg-blue-100 text-blue-700' :
+                                stat.color === 'green' ? 'bg-green-100 text-green-700' :
+                                  stat.color === 'orange' ? 'bg-orange-100 text-orange-700' :
+                                    'bg-purple-100 text-purple-700'
+                              }`}>
                               {stat.change} from last month
                             </span>
                           </div>
                         </div>
-                        <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-                          stat.color === 'blue' ? 'bg-blue-100' :
-                          stat.color === 'green' ? 'bg-green-100' :
-                          stat.color === 'orange' ? 'bg-orange-100' :
-                          'bg-purple-100'
-                        } group-hover:scale-110 transition-transform duration-300`}>
-                          <stat.icon className={`h-6 w-6 ${
-                            stat.color === 'blue' ? 'text-blue-600' :
-                            stat.color === 'green' ? 'text-green-600' :
-                            stat.color === 'orange' ? 'text-orange-600' :
-                            'text-purple-600'
-                          }`} />
+                        <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${stat.color === 'blue' ? 'bg-blue-100' :
+                            stat.color === 'green' ? 'bg-green-100' :
+                              stat.color === 'orange' ? 'bg-orange-100' :
+                                'bg-purple-100'
+                          } group-hover:scale-110 transition-transform duration-300`}>
+                          <stat.icon className={`h-6 w-6 ${stat.color === 'blue' ? 'text-blue-600' :
+                              stat.color === 'green' ? 'text-green-600' :
+                                stat.color === 'orange' ? 'text-orange-600' :
+                                  'text-purple-600'
+                            }`} />
                         </div>
                       </div>
                     </CardContent>
@@ -606,22 +637,20 @@ export function ClientProfile() {
                         color: 'orange'
                       }
                     ].map((activity, index) => (
-                      <div 
-                        key={activity.type} 
+                      <div
+                        key={activity.type}
                         className="flex items-center gap-4 p-4 rounded-lg border bg-gradient-to-r from-muted/50 to-transparent hover:from-muted hover:to-muted/50 transition-all duration-300 group"
                       >
-                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center transition-colors duration-200 ${
-                          activity.color === 'blue' ? 'bg-blue-100 group-hover:bg-blue-200' :
-                          activity.color === 'green' ? 'bg-green-100 group-hover:bg-green-200' :
-                          activity.color === 'purple' ? 'bg-purple-100 group-hover:bg-purple-200' :
-                          'bg-orange-100 group-hover:bg-orange-200'
-                        }`}>
-                          <activity.icon className={`h-5 w-5 ${
-                            activity.color === 'blue' ? 'text-blue-600' :
-                            activity.color === 'green' ? 'text-green-600' :
-                            activity.color === 'purple' ? 'text-purple-600' :
-                            'text-orange-600'
-                          }`} />
+                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center transition-colors duration-200 ${activity.color === 'blue' ? 'bg-blue-100 group-hover:bg-blue-200' :
+                            activity.color === 'green' ? 'bg-green-100 group-hover:bg-green-200' :
+                              activity.color === 'purple' ? 'bg-purple-100 group-hover:bg-purple-200' :
+                                'bg-orange-100 group-hover:bg-orange-200'
+                          }`}>
+                          <activity.icon className={`h-5 w-5 ${activity.color === 'blue' ? 'text-blue-600' :
+                              activity.color === 'green' ? 'text-green-600' :
+                                activity.color === 'purple' ? 'text-purple-600' :
+                                  'text-orange-600'
+                            }`} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-foreground group-hover:text-primary transition-colors duration-200">
@@ -653,8 +682,8 @@ export function ClientProfile() {
                           <CardDescription>Your latest project activities</CardDescription>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => navigate('/client/projects')}
                       >
@@ -689,7 +718,7 @@ export function ClientProfile() {
                             dueDate: '2024-03-01'
                           }
                         ].map((project) => (
-                          <div 
+                          <div
                             key={project.id}
                             className="p-4 rounded-lg border bg-gradient-to-r from-muted/50 to-transparent hover:from-muted hover:to-muted/50 transition-all duration-300 group cursor-pointer"
                             onClick={() => navigate(`/client/projects/${project.id}`)}
@@ -698,11 +727,11 @@ export function ClientProfile() {
                               <h4 className="font-medium group-hover:text-primary transition-colors duration-200">
                                 {project.title}
                               </h4>
-                              <Badge 
+                              <Badge
                                 variant={
                                   project.status === 'Completed' ? 'default' :
-                                  project.status === 'In Progress' ? 'secondary' :
-                                  'outline'
+                                    project.status === 'In Progress' ? 'secondary' :
+                                      'outline'
                                 }
                                 className="text-xs"
                               >
@@ -726,7 +755,7 @@ export function ClientProfile() {
                         <div className="text-center py-8">
                           <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <p className="text-muted-foreground mb-4">No projects yet</p>
-                          <Button 
+                          <Button
                             onClick={() => navigate('/client/add-project')}
                             className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
                           >
@@ -759,15 +788,15 @@ export function ClientProfile() {
                         <div className="flex justify-between text-sm">
                           <span className="font-medium">Project Success Rate</span>
                           <span className="text-muted-foreground">
-                            {stats?.data?.totalProjects > 0 
-                              ? Math.round((stats?.data?.completedProjects / stats?.data?.totalProjects) * 100) 
+                            {stats?.data?.totalProjects > 0
+                              ? Math.round((stats?.data?.completedProjects / stats?.data?.totalProjects) * 100)
                               : 0}%
                           </span>
                         </div>
-                        <Progress 
-                          value={stats?.data?.totalProjects > 0 
-                            ? (stats?.data?.completedProjects / stats?.data?.totalProjects) * 100 
-                            : 0} 
+                        <Progress
+                          value={stats?.data?.totalProjects > 0
+                            ? (stats?.data?.completedProjects / stats?.data?.totalProjects) * 100
+                            : 0}
                           className="h-3"
                         />
                       </div>
@@ -780,13 +809,12 @@ export function ClientProfile() {
                         </div>
                         <div className="flex items-center gap-1">
                           {[1, 2, 3, 4, 5].map((star) => (
-                            <Star 
-                              key={star} 
-                              className={`h-4 w-4 ${
-                                star <= (stats?.data?.averageRating || 0) 
-                                  ? 'fill-yellow-400 text-yellow-400' 
+                            <Star
+                              key={star}
+                              className={`h-4 w-4 ${star <= (stats?.data?.averageRating || 0)
+                                  ? 'fill-yellow-400 text-yellow-400'
                                   : 'text-muted-foreground'
-                              }`} 
+                                }`}
                             />
                           ))}
                           <span className="ml-2 font-bold">{stats?.data?.averageRating || 'N/A'}</span>
@@ -813,8 +841,8 @@ export function ClientProfile() {
 
                       <Separator />
 
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="w-full justify-center hover:bg-primary/10 transition-all duration-300"
                         onClick={() => navigate('/client/analytics')}
                       >
@@ -833,25 +861,3 @@ export function ClientProfile() {
     </div>
   )
 }
-
-// // Add this CSS for the fade-in animation
-// const styles = `
-// @keyframes fadeInUp {
-//   from {
-//     opacity: 0;
-//     transform: translateY(20px);
-//   }
-//   to {
-//     opacity: 1;
-//     transform: translateY(0);
-//   }
-// }
-// `
-
-// // Inject styles if not already present
-// if (typeof document !== 'undefined' && !document.getElementById('profile-animations')) {
-//   const styleSheet = document.createElement('style')
-//   styleSheet.id = 'profile-animations'
-//   styleSheet.textContent = styles
-//   document.head.appendChild(styleSheet)
-// }
