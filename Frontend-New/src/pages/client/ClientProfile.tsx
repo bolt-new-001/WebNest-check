@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { User, Edit, Star, Calendar, MapPin, Phone, Mail, Building, Crown, TrendingUp, Award, Clock } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,26 +9,55 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getInitials } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
+import { toast } from 'sonner'
 
 export function ClientProfile() {
-  const { user } = useAuthStore()
+  const { user, updateUser } = useAuthStore()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile'],
+    queryKey: ['profile', user?.id],
     queryFn: async () => {
       const response = await fetch('/api/client/profile')
       if (!response.ok) throw new Error('Failed to fetch profile')
-      return response.json()
-    }
+      const data = await response.json()
+      // Update auth store with fresh data
+      updateUser(data)
+      return data
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false
   })
 
   const { data: stats } = useQuery({
-    queryKey: ['profile-stats'],
+    queryKey: ['profile-stats', user?.id],
     queryFn: async () => {
       const response = await fetch('/api/client/profile/stats')
       if (!response.ok) throw new Error('Failed to fetch stats')
       return response.json()
+    }
+  })
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await fetch('/api/client/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      if (!response.ok) throw new Error('Failed to update profile')
+      return response.json()
+    },
+    onSuccess: (data) => {
+      // Update local state
+      updateUser(data)
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] })
+      toast.success('Profile updated successfully')
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update profile')
     }
   })
 
@@ -40,7 +69,10 @@ export function ClientProfile() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold tracking-tight">Profile</h2>
-          <Button onClick={() => navigate('/client/settings')} className="flex items-center gap-2">
+          <Button 
+            onClick={() => navigate('/client/settings')} 
+            className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary/90 transition-colors"
+          >
             <Edit className="h-4 w-4" />
             Edit Profile
           </Button>
