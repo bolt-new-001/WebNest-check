@@ -25,7 +25,8 @@ import ClientBackups from './ClientBackups'
 
 
 import ChangePasswordPage from './Settings/password-change'
-// import 
+import TwoFactorAuthPage from './Settings/TwoFactorAuth'
+
 
 
 export function ClientDashboard() {
@@ -84,7 +85,7 @@ export function ClientDashboard() {
         {/* <Route path="/settings/notifications" element={<ClientSettingsNotifications />} /> */}
         
         <Route path="/settings/change-password" element={<ChangePasswordPage />} />
-        {/* <Route path="/setings/two-factor-auth" element */}
+        <Route path="/setings/two-factor-auth" element={<TwoFactorAuthPage />} />
 
 
 
