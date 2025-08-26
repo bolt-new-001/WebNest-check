@@ -65,7 +65,7 @@ export const register = asyncHandler(async (req, res) => {
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
-export const login = asyncHandler(async (req, res) => {
+export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   
   // Find user and include password for comparison
@@ -101,25 +101,54 @@ export const login = asyncHandler(async (req, res) => {
 
     return res.status(403).json({
       success: false,
-      message: 'Please verify your email first',
-      needsVerification: true,
-      email: user.email
+      message: 'Please verify your email first. A new verification code has been sent to your email.'
     });
   }
 
-  // Generate token and return user data
+  // Generate JWT token
   const token = generateToken(user._id);
-  res.json({
-    success: true,
-    data: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      isEmailVerified: true,
-      isPremium: user.isPremiumActive?.() || false,
-      token
+  
+  // Set user in session
+  req.session.userId = user._id;
+  req.session.save(err => {
+    if (err) {
+      console.error('Session save error:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Error creating session'
+      });
     }
+
+    // Set secure HTTP-only cookie
+    res.cookie('connect.sid', req.sessionID, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Set JWT token in response
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Remove sensitive data before sending response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    delete userResponse.emailVerificationCode;
+    delete userResponse.emailVerificationExpires;
+    delete userResponse.resetPasswordToken;
+    delete userResponse.resetPasswordExpire;
+
+    res.status(200).json({
+      success: true,
+      token,
+      data: userResponse,
+      sessionId: req.sessionID
+    });
   });
 });
 
@@ -133,13 +162,40 @@ export const getMe = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Logout user
+// @desc    Logout user / clear session and cookie
 // @route   POST /api/auth/logout
-// @access  Public
+// @access  Private
 export const logout = asyncHandler(async (req, res) => {
-  res.json({
-    success: true,
-    message: 'User logged out successfully'
+  // Clear the session from the store
+  req.session.destroy(async (err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Error logging out'
+      });
+    }
+
+    // Clear the session cookie
+    res.clearCookie('connect.sid', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
+    // Clear the JWT cookie
+    res.clearCookie('jwt', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Logged out successfully' 
+    });
   });
 });
 
