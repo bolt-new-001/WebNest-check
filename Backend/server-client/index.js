@@ -5,6 +5,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/logger.js';
@@ -38,16 +40,52 @@ import revisionRoutes from './routes/revisionRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin: '*', // For development, allow all origins
+// Configure CORS
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL 
+    : 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-app.use(generalLimiter); // Apply rate limiting
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['set-cookie']
+};
+
+// Middleware
+app.use(helmet());
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// Session configuration
+const sessionConfig = {
+  name: 'webnest.sid',
+  secret: process.env.SESSION_SECRET || 'your-secret-key', // Use environment variable in production
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  },
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+    ttl: 30 * 24 * 60 * 60, // 30 days in seconds
+    autoRemove: 'interval',
+    autoRemoveInterval: 60 * 24, // Clean up expired sessions every 24 hours
+  })
+};
+
+// Trust first proxy if behind a reverse proxy (e.g., Heroku, Nginx)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+  sessionConfig.cookie.secure = true;
+}
+
+app.use(session(sessionConfig));
+app.use(generalLimiter); // Apply rate limiting after session middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 
@@ -55,7 +93,10 @@ app.use(requestLogger);
 app.use('/uploads', express.static('uploads'));
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/webnest', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
   .then(() => {
     console.log('📦 Client Service: MongoDB Connected');
     // Start deadline reminder scheduler
