@@ -233,14 +233,84 @@ export const clientApi = {  verifyEmail: async (data: { email: string, otp: stri
     return response.data
   },
 
-  getSessions: async () => {
-    const response = await api.get('/api/security/sessions')
-    return response.data
+  /**
+   * Get all active sessions for the current user
+   */
+  async getSessions(): Promise<ApiResponse<{
+    sessions: Array<{
+      id: string;
+      ipAddress: string;
+      userAgent: string;
+      lastActiveAt: string;
+      isCurrent: boolean;
+      location?: {
+        city?: string;
+        country?: string;
+        region?: string;
+      };
+    }>;
+  }>> {
+    try {
+      const response = await api.get('/api/auth/sessions');
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to fetch sessions',
+          error: error.response?.data?.error
+        };
+      }
+      return {
+        success: false,
+        message: 'An unexpected error occurred while fetching sessions'
+      };
+    }
   },
 
-  revokeSession: async (sessionId: string) => {
-    const response = await api.delete(`/api/security/sessions/${sessionId}`)
-    return response.data
+  /**
+   * Revoke a specific session
+   * @param sessionId - The ID of the session to revoke
+   */
+  async revokeSession(sessionId: string): Promise<ApiResponse> {
+    try {
+      const response = await api.delete(`/api/auth/sessions/${sessionId}`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to revoke session',
+          error: error.response?.data?.error
+        };
+      }
+      return {
+        success: false,
+        message: 'An unexpected error occurred while revoking the session'
+      };
+    }
+  },
+
+  /**
+   * Revoke all sessions except the current one
+   */
+  async revokeAllOtherSessions(): Promise<ApiResponse> {
+    try {
+      const response = await api.delete('/api/auth/sessions/revoke-others');
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to revoke other sessions',
+          error: error.response?.data?.error
+        };
+      }
+      return {
+        success: false,
+        message: 'An unexpected error occurred while revoking other sessions'
+      };
+    }
   },
 
   // Dashboard Data

@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Session {
   id: string;
@@ -32,34 +33,70 @@ interface Session {
 export default function ActiveSessions() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
-  const { data: sessions, isLoading, isError } = useQuery<Session[]>({
+  const { data: sessions = [], isLoading, isError, error } = useQuery<Session[]>({
     queryKey: ['active-sessions'],
     queryFn: async () => {
-      const response = await api.get('/auth/sessions');
-      return response.data.data;
+      try {
+        const response = await api.get('/api/auth/sessions');
+        return response.data?.data || [];
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          toast.error('Session expired. Please log in again.');
+          navigate('/auth/login');
+        }
+        throw err;
+      }
     },
+    enabled: isAuthenticated,
   });
 
   const revokeSessionMutation = useMutation({
-    mutationFn: (sessionId: string) => api.delete(`/auth/sessions/${sessionId}`),
+    mutationFn: async (sessionId: string) => {
+      try {
+        const response = await api.delete(`/api/auth/sessions/${sessionId}`);
+        return response.data;
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          toast.error('Session expired. Please log in again.');
+          navigate('/auth/login');
+        }
+        throw err;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['active-sessions'] });
       toast.success('Session revoked successfully');
     },
-    onError: () => {
-      toast.error('Failed to revoke session');
+    onError: (error: any) => {
+      if (error?.response?.status !== 401) {
+        toast.error(error?.response?.data?.message || 'Failed to revoke session');
+      }
     },
   });
 
   const revokeAllOtherSessions = useMutation({
-    mutationFn: () => api.delete('/auth/sessions/others'),
+    mutationFn: async () => {
+      try {
+        const response = await api.delete('/api/auth/sessions/revoke-others');
+        return response.data;
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          toast.error('Session expired. Please log in again.');
+          navigate('/auth/login');
+        }
+        throw err;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['active-sessions'] });
       toast.success('All other sessions have been revoked');
     },
-    onError: () => {
-      toast.error('Failed to revoke sessions');
+    onError: (error: any) => {
+      if (error?.response?.status !== 401) {
+        toast.error(error?.response?.data?.message || 'Failed to revoke sessions');
+      }
     },
   });
 
