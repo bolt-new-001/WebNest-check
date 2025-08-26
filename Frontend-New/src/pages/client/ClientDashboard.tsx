@@ -27,6 +27,7 @@ import ClientBackups from './ClientBackups'
 //Setting Page Routes
 import ChangePasswordPage from './Settings/password-change'
 import { default as TwoFactorAuthPage } from './Settings/TwoFactorAuth'
+import PublicProfile from './Settings/PublicProfile'
 
 
 
@@ -87,6 +88,7 @@ export function ClientDashboard() {
         
         <Route path="/settings/change-password" element={<ChangePasswordPage />} />
         <Route path="/settings/two-factor-auth" element={<TwoFactorAuthPage />} />
+        <Route path="/profile/:id" element={<PublicProfile />} />
 
 
 

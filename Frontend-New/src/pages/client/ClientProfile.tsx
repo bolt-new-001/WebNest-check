@@ -104,7 +104,7 @@ export function ClientProfile() {
     }
     const profileUrl = `${window.location.origin}/client/profile/${user._id}`
     navigator.clipboard.writeText(profileUrl)
-    toast.success('Profile link copied to clipboard')
+    toast.success('Public profile link copied to clipboard')
   }
 
   // Add this CSS for the fade-in animation
