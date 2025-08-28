@@ -5,6 +5,7 @@ import User from '../models/User.js';
 import Session from '../models/Session.js';
 import crypto from 'crypto';
 import * as emailService from '../utils/emailService.js';
+import ActivityLog from '../models/ActivityLog.js';
 
 // Helper functions for device detection
 const getDeviceType = (userAgent) => {
@@ -131,6 +132,27 @@ router.get('/sessions', protect, asyncHandler(async (req, res) => {
     success: true,
     data: sessions 
   });
+}));
+
+// @desc    Get login history
+// @route   GET /api/security/login-history
+// @access  Private
+router.get('/login-history', protect, asyncHandler(async (req, res) => {
+  const logs = await ActivityLog.find({ userId: req.user._id, action: { $in: ['login', 'logout'] } })
+    .sort({ createdAt: -1 })
+    .limit(200);
+
+  const history = logs.map(l => ({
+    id: String(l._id),
+    action: l.action,
+    description: l.description,
+    createdAt: l.createdAt,
+    ipAddress: l.ipAddress,
+    userAgent: l.userAgent,
+    location: l.location || {}
+  }));
+
+  res.json({ success: true, data: history });
 }));
 
 // @desc    Revoke session

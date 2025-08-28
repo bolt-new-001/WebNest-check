@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
 import * as emailService from '../utils/emailService.js';
 import { OTPService } from '../services/otpService.js';
+import ActivityLog from '../models/ActivityLog.js';
 import crypto from 'crypto';
 
 // @desc    Register user
@@ -137,6 +138,18 @@ export const login = asyncHandler(async (req, res, next) => {
         },
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
+
+      // Log login activity
+      await ActivityLog.create({
+        userId: user._id,
+        userType: 'User',
+        action: 'login',
+        description: 'User logged in',
+        ipAddress,
+        userAgent,
+        location: {},
+        severity: 'low'
+      });
     } catch (sessionErr) {
       // Do not fail login if session persistence fails
       console.error('Persistent session create/update error:', sessionErr);
@@ -214,6 +227,22 @@ export const logout = asyncHandler(async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
+
+    try {
+      // Log logout activity
+      await ActivityLog.create({
+        userId: req.user?._id,
+        userType: 'User',
+        action: 'logout',
+        description: 'User logged out',
+        ipAddress: req.ip || 'Unknown',
+        userAgent: req.headers['user-agent'] || 'Unknown',
+        location: {},
+        severity: 'low'
+      });
+    } catch (e) {
+      // ignore
+    }
 
     res.status(200).json({ 
       success: true, 

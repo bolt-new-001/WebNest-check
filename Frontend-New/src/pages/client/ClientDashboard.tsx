@@ -29,7 +29,8 @@ import ChangePasswordPage from './Settings/password-change'
 import { default as TwoFactorAuthPage } from './Settings/TwoFactorAuth'
 import ActiveSessions from './Settings/ActiveSessions'
 import PublicProfile from './Settings/PublicProfile'
-
+import LoginHistory from './Settings/LoginHistory'
+import ExportData from './Settings/ExportData'
 
 
 export function ClientDashboard() {
@@ -90,6 +91,8 @@ export function ClientDashboard() {
         <Route path="/settings/change-password" element={<ChangePasswordPage />} />
         <Route path="/settings/two-factor-auth" element={<TwoFactorAuthPage />} />
         <Route path="/settings/sessions" element={<ActiveSessions />} />
+        <Route path="/settings/login-history" element={<LoginHistory />} />
+        <Route path="/settings/export-data" element={<ExportData />} />
         <Route path="/profile/:id" element={<PublicProfile />} />
 
 
