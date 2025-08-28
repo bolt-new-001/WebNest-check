@@ -99,8 +99,16 @@ const userSchema = new mongoose.Schema({
     userAgent: String,
     ip: String,
     lastUsed: Date,
-    device: String,
-    location: String
+    device: {
+      type: String,
+      os: String,
+      browser: String
+    },
+    location: {
+      city: String,
+      region: String,
+      country: String
+    }
   }],
   otpAttempts: {
     count: { type: Number, default: 0 },

@@ -4,6 +4,35 @@ import Session from '../models/Session.js';
 import asyncHandler from 'express-async-handler';
 import { getClientIp } from '@supercharge/request-ip';
 
+// Helper functions for device detection
+const getDeviceType = (userAgent) => {
+  if (!userAgent) return 'Unknown';
+  if (userAgent.includes('Mobile')) return 'Mobile';
+  if (userAgent.includes('Tablet')) return 'Tablet';
+  if (userAgent.includes('Windows') || userAgent.includes('Mac') || userAgent.includes('Linux')) return 'Desktop';
+  return 'Unknown';
+};
+
+const getOS = (userAgent) => {
+  if (!userAgent) return 'Unknown';
+  if (userAgent.includes('Windows')) return 'Windows';
+  if (userAgent.includes('Mac')) return 'macOS';
+  if (userAgent.includes('Linux')) return 'Linux';
+  if (userAgent.includes('Android')) return 'Android';
+  if (userAgent.includes('iOS')) return 'iOS';
+  return 'Unknown';
+};
+
+const getBrowser = (userAgent) => {
+  if (!userAgent) return 'Unknown';
+  if (userAgent.includes('Chrome')) return 'Chrome';
+  if (userAgent.includes('Firefox')) return 'Firefox';
+  if (userAgent.includes('Safari')) return 'Safari';
+  if (userAgent.includes('Edge')) return 'Edge';
+  if (userAgent.includes('Opera')) return 'Opera';
+  return 'Unknown';
+};
+
 // Array of public routes that don't require authentication
 const publicRoutes = [
   '/api/auth/login',
@@ -18,13 +47,21 @@ const isPublicRoute = (path) => {
   return publicRoutes.some(route => path.startsWith(route));
 };
 
-// Session validation middleware
-export const validateSession = asyncHandler(async (req, res, next) => {
-  const sessionId = req.sessionID;
+// Main authentication middleware
+export const protect = asyncHandler(async (req, res, next) => {
+  // Skip authentication for public routes
+  if (isPublicRoute(req.path)) {
+    return next();
+  }
+
+  // Get token from Authorization header
   const token = req.headers.authorization?.split(' ')[1];
   
   if (!token) {
-    return next(); // No token, will be handled by protect middleware
+    return res.status(401).json({
+      success: false,
+      message: 'No authentication token received'
+    });
   }
 
   try {
@@ -39,27 +76,64 @@ export const validateSession = asyncHandler(async (req, res, next) => {
       });
     }
 
-    // For non-public routes, check session validity
-    if (!isPublicRoute(req.path)) {
-      const session = await Session.findOne({ _id: sessionId, user: user._id, valid: true });
-      
-      if (!session) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid or expired session. Please log in again.'
-        });
-      }
-
-      // Update last activity
-      session.lastActivity = new Date();
-      await session.save();
-      
-      // Add session info to request
-      req.session = session;
-    }
-
     // Add user to request
     req.user = user;
+
+    // Try to create or update session for tracking
+    try {
+      const sessionId = req.sessionID;
+      if (sessionId) {
+        let session = await Session.findOne({ _id: sessionId, user: user._id, valid: true });
+        
+        if (!session) {
+          // Create a new session
+          session = await Session.create({
+            _id: sessionId,
+            user: user._id,
+            userAgent: req.headers['user-agent'] || 'Unknown',
+            ipAddress: getClientIp(req) || 'Unknown',
+            valid: true,
+            lastActivity: new Date()
+          });
+        } else {
+          // Update existing session
+          session.lastActivity = new Date();
+          await session.save();
+        }
+
+        // Update user's active sessions
+        const sessionInfo = {
+          id: sessionId,
+          userAgent: req.headers['user-agent'] || 'Unknown',
+          ip: getClientIp(req) || 'Unknown',
+          lastUsed: new Date(),
+          device: {
+            type: getDeviceType(req.headers['user-agent']),
+            os: getOS(req.headers['user-agent']),
+            browser: getBrowser(req.headers['user-agent'])
+          },
+          location: {
+            city: session.city || 'Unknown',
+            region: session.region || 'Unknown',
+            country: session.country || 'Unknown'
+          }
+        };
+        
+        // Add to user's active sessions if not already present
+        const existingSessionIndex = user.activeSessions.findIndex(s => s.id === sessionId);
+        if (existingSessionIndex >= 0) {
+          user.activeSessions[existingSessionIndex] = sessionInfo;
+        } else {
+          user.activeSessions.push(sessionInfo);
+        }
+        
+        await user.save();
+      }
+    } catch (sessionError) {
+      console.error('Session tracking error:', sessionError);
+      // Don't fail the request if session tracking fails
+    }
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -75,30 +149,6 @@ export const validateSession = asyncHandler(async (req, res, next) => {
     });
   }
 });
-
-// Main authentication middleware
-export const protect = [
-  // First validate the session
-  validateSession,
-  
-  // Then check if user is authenticated
-  asyncHandler(async (req, res, next) => {
-    // Skip authentication for public routes
-    if (isPublicRoute(req.path)) {
-      return next();
-    }
-
-    // Check if user is authenticated
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Not authorized, no valid session or token'
-      });
-    }
-
-    next();
-  })
-];
 
 export const authorize = (...roles) => {
   return (req, res, next) => {

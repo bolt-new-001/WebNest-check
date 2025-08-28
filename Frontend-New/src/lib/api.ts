@@ -125,7 +125,82 @@ api.interceptors.response.use(
 );
 
   // ✅ Client API
-export const clientApi = {  verifyEmail: async (data: { email: string, otp: string }) => {
+export const clientApi = {
+  login: async (data: { email: string; password: string }) => {
+    try {
+      const response = await api.post('/api/auth/login', data);
+      console.log('Login API response:', response.data);
+
+      const responseData = response.data;
+
+      // Handle error cases first
+      if (!responseData.success) {
+        return {
+          success: false,
+          message: responseData.message || 'Login failed'
+        };
+      }
+
+      // Extract user data and token from backend response format
+      // Backend sends: { success: true, token: "...", data: {...}, sessionId: "..." }
+      const userData = responseData.data;
+      const token = responseData.token;
+
+      if (!userData || !token) {
+        return {
+          success: false,
+          message: 'Invalid login response from server'
+        };
+      }
+
+      // Store token and user data in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      // Update the default api instance headers with the new token
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      return {
+        success: true,
+        data: {
+          user: userData,
+          token
+        }
+      };
+    } catch (error: any) {
+      console.error('Login error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Login failed'
+      };
+    }
+  },
+
+  register: async (data: { name: string; email: string; password: string; role: string }) => {
+    try {
+      const response = await api.post('/api/auth/register', data);
+      console.log('Register API response:', response.data);
+
+      const responseData = response.data;
+
+      if (!responseData.success) {
+        return {
+          success: false,
+          message: responseData.message || 'Registration failed'
+        };
+      }
+
+      return responseData;
+    } catch (error: any) {
+      console.error('Register error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Registration failed'
+      };
+    }
+  },
+
+  verifyEmail: async (data: { email: string, otp: string }) => {
     try {
       // Create a new instance without interceptors for verification
       const verifyApi = axios.create({
@@ -353,104 +428,6 @@ export const clientApi = {  verifyEmail: async (data: { email: string, otp: stri
     }
   },
 
-  login: async (data: { email: string; password: string }) => {
-    try {
-      const response = await api.post('/api/auth/login', data)
-      console.log('Login API response:', response.data)
-
-      // If the response itself is missing
-      if (!response || !response.data) {
-        return {
-          success: false,
-          message: 'No response from server'
-        }
-      }
-
-      const responseData = response.data
-
-      // Check if there's an error message in the response
-      if (responseData.message && !responseData.success) {
-        return {
-          success: false,
-          message: responseData.message
-        }
-      }
-
-      // Handle the case where user data is directly in data field
-      if (responseData.success && responseData.data && typeof responseData.data === 'object') {
-        const userData = responseData.data
-        
-        if (userData._id && userData.email) {  // This is a user object
-          // Check email verification
-          if (!userData.isEmailVerified) {
-            return {
-              success: false,
-              message: 'Please verify your email first',
-              needsVerification: true,
-              email: data.email
-            }
-          }
-
-          // Get token from headers or response
-          const token = response.headers?.authorization?.split(' ')[1] || userData.token
-
-          if (!token) {
-            return {
-              success: false,
-              message: 'No authentication token received'
-            }
-          }
-
-          // Store user data and token
-          localStorage.setItem('token', token)
-          localStorage.setItem('user', JSON.stringify(userData))
-          
-          return {
-            success: true,
-            data: {
-              user: userData,
-              token
-            }
-          }
-        }
-      }
-
-      // Check nested format
-      if (responseData.data?.user && responseData.data?.token) {
-        const { user, token } = responseData.data
-
-        if (!user.isEmailVerified) {
-          return {
-            success: false,
-            message: 'Please verify your email first',
-            needsVerification: true,
-            email: data.email
-          }
-        }
-
-        localStorage.setItem('token', token)
-        localStorage.setItem('user', JSON.stringify(user))
-        return responseData
-      }
-
-      console.error('Unexpected response format:', responseData)
-      return {
-        success: false,
-        message: 'Invalid response format from server'
-      }
-    } catch (error: any) {
-      console.error('Login error details:', error.response?.data || error)
-      // Return a properly structured error response
-      return {
-        success: false,
-        message: error.response?.data?.message || 
-                error.message || 
-                'Login failed. Please check your credentials and try again.'
-      }
-    }
-  },
-   
-
   register: async (data: { 
     name: string; 
     email: string; 
@@ -541,8 +518,8 @@ export const clientApi = {  verifyEmail: async (data: { email: string, otp: stri
   // Legacy methods (deprecated, will be removed in future)
   getProjects: (params?: any) => api.get('/api/projects', { params }),
   getProject: (id: string) => api.get(`/api/projects/${id}`),
-  createProject: (data: any) => clientApi.Project.create(data),
-  updateProject: (id: string, data: any) => clientApi.Project.update(id, data),
+  createProject: (data: any) => api.post('/api/projects', data),
+  updateProject: (id: string, data: any) => api.put(`/api/projects/${data.id || data._id}`, data),
 
   // Activity Feed
   getProjectActivity: (projectId: string, params?: any) =>

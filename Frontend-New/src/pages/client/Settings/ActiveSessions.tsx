@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { toast } from 'sonner';
+import { RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
@@ -35,13 +36,13 @@ export default function ActiveSessions() {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
 
-  const { data: sessions = [], isLoading, isError, error } = useQuery<Session[]>({
+  const { data: sessions = [], isLoading, isError } = useQuery<Session[]>({
     queryKey: ['active-sessions'],
     queryFn: async () => {
       try {
-        const response = await api.get('/api/auth/sessions');
+        const response: any = await api.get('/api/auth/sessions');
         return response.data?.data || [];
-      } catch (err) {
+      } catch (err: any) {
         if (err?.response?.status === 401) {
           toast.error('Session expired. Please log in again.');
           navigate('/auth/login');
@@ -55,9 +56,9 @@ export default function ActiveSessions() {
   const revokeSessionMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       try {
-        const response = await api.delete(`/api/auth/sessions/${sessionId}`);
+        const response: any = await api.delete(`/api/auth/sessions/${sessionId}`);
         return response.data;
-      } catch (err) {
+      } catch (err: any) {
         if (err?.response?.status === 401) {
           toast.error('Session expired. Please log in again.');
           navigate('/auth/login');
@@ -79,9 +80,9 @@ export default function ActiveSessions() {
   const revokeAllOtherSessions = useMutation({
     mutationFn: async () => {
       try {
-        const response = await api.delete('/api/auth/sessions/revoke-others');
+        const response: any = await api.delete('/api/auth/sessions');
         return response.data;
-      } catch (err) {
+      } catch (err: any) {
         if (err?.response?.status === 401) {
           toast.error('Session expired. Please log in again.');
           navigate('/auth/login');
@@ -170,7 +171,7 @@ export default function ActiveSessions() {
             <h3 className="text-lg font-medium mb-2">Unable to load sessions</h3>
             <p className="text-muted-foreground mb-4">There was an error loading your active sessions. Please try again later.</p>
             <Button onClick={() => queryClient.refetchQueries({ queryKey: ['active-sessions'] })}>
-              <Icons.refreshCw className="mr-2 h-4 w-4" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Try Again
             </Button>
           </CardContent>

@@ -35,6 +35,7 @@ import activityRoutes from './routes/activityRoutes.js';
 import fileRoutes from './routes/fileRoutes.js';
 import clientNotificationRoutes from './routes/clientNotificationRoutes.js';
 import revisionRoutes from './routes/revisionRoutes.js';
+import securityRoutes from './routes/security.js';
 
 
 const app = express();
@@ -139,6 +140,7 @@ app.use('/api/activity', activityRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/notifications/client', clientNotificationRoutes);
 app.use('/api/revisions', revisionRoutes);
+app.use('/api/security', securityRoutes);
 app.use('/api', projectFeedbackRoutes);
 app.use('/api', milestoneRoutes);
 

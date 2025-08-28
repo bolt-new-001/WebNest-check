@@ -2,8 +2,38 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { protect } from '../middleware/auth.js';
 import User from '../models/User.js';
+import Session from '../models/Session.js';
 import crypto from 'crypto';
 import * as emailService from '../utils/emailService.js';
+
+// Helper functions for device detection
+const getDeviceType = (userAgent) => {
+  if (!userAgent) return 'Unknown';
+  if (userAgent.includes('Mobile')) return 'Mobile';
+  if (userAgent.includes('Tablet')) return 'Tablet';
+  if (userAgent.includes('Windows') || userAgent.includes('Mac') || userAgent.includes('Linux')) return 'Desktop';
+  return 'Unknown';
+};
+
+const getOS = (userAgent) => {
+  if (!userAgent) return 'Unknown';
+  if (userAgent.includes('Windows')) return 'Windows';
+  if (userAgent.includes('Mac')) return 'macOS';
+  if (userAgent.includes('Linux')) return 'Linux';
+  if (userAgent.includes('Android')) return 'Android';
+  if (userAgent.includes('iOS')) return 'iOS';
+  return 'Unknown';
+};
+
+const getBrowser = (userAgent) => {
+  if (!userAgent) return 'Unknown';
+  if (userAgent.includes('Chrome')) return 'Chrome';
+  if (userAgent.includes('Firefox')) return 'Firefox';
+  if (userAgent.includes('Safari')) return 'Safari';
+  if (userAgent.includes('Edge')) return 'Edge';
+  if (userAgent.includes('Opera')) return 'Opera';
+  return 'Unknown';
+};
 
 const router = express.Router();
 
@@ -74,10 +104,33 @@ router.get('/sessions', protect, asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  // Get active sessions (in a real app, this would be stored in Redis or similar)
-  const sessions = user.activeSessions || [];
+  // Get active sessions from both User model and Session collection
+  const userSessions = user.activeSessions || [];
+  const dbSessions = await Session.find({ user: user._id, valid: true });
+  
+  // Combine and format sessions
+  const sessions = dbSessions.map(session => ({
+    id: session._id,
+    userAgent: session.userAgent || 'Unknown',
+    ipAddress: session.ipAddress || 'Unknown',
+    lastActiveAt: session.lastActivity,
+    isCurrent: session._id === req.sessionID,
+    location: {
+      city: session.city,
+      region: session.region,
+      country: session.country
+    },
+    device: {
+      type: getDeviceType(session.userAgent),
+      os: getOS(session.userAgent),
+      browser: getBrowser(session.userAgent)
+    }
+  }));
 
-  res.json({ sessions });
+  res.json({ 
+    success: true,
+    data: sessions 
+  });
 }));
 
 // @desc    Revoke session
@@ -91,13 +144,72 @@ router.delete('/sessions/:sessionId', protect, asyncHandler(async (req, res) => 
     return res.status(404).json({ message: 'User not found' });
   }
 
-  // In a real app, this would invalidate the session in Redis
+  // Don't allow revoking current session
+  if (sessionId === req.sessionID) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Cannot revoke current session' 
+    });
+  }
+
+  // Invalidate session in database
+  const session = await Session.findByIdAndUpdate(
+    sessionId,
+    { valid: false },
+    { new: true }
+  );
+
+  if (!session) {
+    return res.status(404).json({ 
+      success: false,
+      message: 'Session not found' 
+    });
+  }
+
+  // Remove from user's active sessions
   user.activeSessions = user.activeSessions?.filter(
     session => session.id !== sessionId
   );
 
   await user.save();
-  res.json({ message: 'Session revoked successfully' });
+  
+  res.json({ 
+    success: true,
+    message: 'Session revoked successfully' 
+  });
+}));
+
+// @desc    Revoke all other sessions
+// @route   DELETE /api/security/sessions/revoke-others
+// @access  Private
+router.delete('/sessions/revoke-others', protect, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Invalidate all other sessions except current one
+  await Session.updateMany(
+    { 
+      user: user._id, 
+      valid: true,
+      _id: { $ne: req.sessionID }
+    },
+    { valid: false }
+  );
+
+  // Clear user's active sessions except current one
+  user.activeSessions = user.activeSessions?.filter(
+    session => session.id === req.sessionID
+  ) || [];
+
+  await user.save();
+  
+  res.json({ 
+    success: true,
+    message: 'All other sessions have been revoked' 
+  });
 }));
 
 export default router;
