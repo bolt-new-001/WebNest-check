@@ -108,9 +108,9 @@ export const login = asyncHandler(async (req, res, next) => {
   // Generate JWT token
   const token = generateToken(user._id);
   
-  // Set user in session
+  // Set user in session and ensure a Session document exists
   req.session.userId = user._id;
-  req.session.save(err => {
+  req.session.save(async err => {
     if (err) {
       console.error('Session save error:', err);
       return res.status(500).json({
@@ -119,8 +119,31 @@ export const login = asyncHandler(async (req, res, next) => {
       });
     }
 
+    try {
+      // Create or update persistent session record
+      const { default: Session } = await import('../models/Session.js');
+      const sessionId = req.sessionID;
+      const userAgent = req.headers['user-agent'] || 'Unknown';
+      const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'Unknown';
+
+      await Session.findOneAndUpdate(
+        { _id: sessionId },
+        {
+          user: user._id,
+          userAgent,
+          ipAddress,
+          valid: true,
+          lastActivity: new Date()
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+    } catch (sessionErr) {
+      // Do not fail login if session persistence fails
+      console.error('Persistent session create/update error:', sessionErr);
+    }
+
     // Set secure HTTP-only cookie
-    res.cookie('connect.sid', req.sessionID, {
+    res.cookie('webnest.sid', req.sessionID, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
