@@ -51,6 +51,8 @@ export default function ActiveSessions() {
       }
     },
     enabled: isAuthenticated,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
   });
 
   const revokeSessionMutation = useMutation({
