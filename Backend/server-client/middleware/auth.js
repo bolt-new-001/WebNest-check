@@ -82,7 +82,8 @@ export const protect = asyncHandler(async (req, res, next) => {
     // Try to create or update session for tracking
     try {
       const sessionId = req.sessionID;
-      if (sessionId) {
+      // Only track session when a real session exists (set during login)
+      if (sessionId && req.session && req.session.userId) {
         let session = await Session.findOne({ _id: sessionId, user: user._id, valid: true });
         
         if (!session) {

@@ -104,6 +104,12 @@ export const revokeSession = asyncHandler(async (req, res) => {
   session.valid = false;
   await session.save();
 
+  // Also prune from user's activeSessions array
+  await User.updateOne(
+    { _id: req.user.id },
+    { $pull: { activeSessions: { id: req.params.id } } }
+  );
+
   res.json({
     success: true,
     message: "Session revoked successfully",
@@ -121,6 +127,12 @@ export const revokeOtherSessions = asyncHandler(async (req, res) => {
       valid: true,
     },
     { $set: { valid: false } }
+  );
+
+  // Keep only current session in user's activeSessions array
+  await User.updateOne(
+    { _id: req.user.id },
+    { $pull: { activeSessions: { id: { $ne: req.sessionID } } } }
   );
 
   res.json({
