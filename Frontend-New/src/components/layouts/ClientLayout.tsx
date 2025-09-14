@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/stores/authStore';
+import { useTheme } from '../../lib/theme';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +48,62 @@ import {
   Activity,
   Sun,
   Moon,
+  Laptop,
+  Smartphone,
+  Tablet,
+  BellRing,
+  Gem,
+  Diamond,
+  Briefcase,
+  Target,
+  BarChart3,
+  PieChart,
+  LineChart,
+  Workflow,
+  GitBranch,
+  Rocket,
+  Cpu,
+  HardDrive,
+  Wifi,
+  Lock,
+  Key,
+  Eye,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Share2,
+  Link2,
+  ExternalLink,
+  FileText,
+  Image,
+  Video,
+  Music,
+  Archive,
+  Folder,
+  FolderPlus,
+  Plus,
+  Minus,
+  Edit,
+  Trash2,
+  Copy,
+  Cut,
+  Paste,
+  Save,
+  RefreshCw,
+  RotateCcw,
+  RotateCw,
+  Maximize,
+  Minimize,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  Square,
+  SkipBack,
+  SkipForward,
+  FastForward,
+  Rewind
 } from 'lucide-react';
 
 const navigation = [
@@ -55,116 +112,126 @@ const navigation = [
     href: '/client', 
     icon: LayoutDashboard, 
     badge: null,
-    gradient: 'from-blue-500 to-purple-600' 
-  },
-  { 
-    name: 'Site Builder', 
-    href: '/client/builder', 
-    icon: Globe, 
-    badge: 'NEW',
-    gradient: 'from-emerald-500 to-teal-600' 
+    gradient: 'from-blue-500 to-purple-600',
+    description: 'Overview and insights'
   },
   { 
     name: 'Projects', 
     href: '/client/projects', 
     icon: FolderOpen, 
     badge: '12',
-    gradient: 'from-orange-500 to-red-600' 
+    gradient: 'from-emerald-500 to-teal-600',
+    description: 'Manage your projects'
+  },
+  { 
+    name: 'Analytics', 
+    href: '/client/analytics', 
+    icon: BarChart3, 
+    badge: null,
+    gradient: 'from-pink-500 to-rose-600',
+    description: 'Performance insights'
+  },
+  { 
+    name: 'Site Builder', 
+    href: '/client/builder', 
+    icon: Rocket, 
+    badge: 'NEW',
+    gradient: 'from-violet-500 to-purple-600',
+    description: 'Build stunning websites'
   },
   { 
     name: 'Templates', 
     href: '/client/templates', 
     icon: Layers, 
-    badge: null,
-    gradient: 'from-violet-500 to-purple-600' 
+    badge: '248',
+    gradient: 'from-cyan-500 to-blue-600',
+    description: 'Premium templates'
   },
   { 
-    name: 'Analytics', 
-    href: '/client/analytics', 
-    icon: TrendingUp, 
+    name: 'Components', 
+    href: '/client/components', 
+    icon: Package, 
     badge: null,
-    gradient: 'from-pink-500 to-rose-600' 
+    gradient: 'from-indigo-500 to-blue-600',
+    description: 'UI components library'
   },
   { 
     name: 'Design System', 
     href: '/client/design', 
     icon: Palette, 
     badge: null,
-    gradient: 'from-cyan-500 to-blue-600' 
-  },
-  { 
-    name: 'Components', 
-    href: '/client/components', 
-    icon: Package, 
-    badge: '248',
-    gradient: 'from-indigo-500 to-blue-600' 
+    gradient: 'from-pink-500 to-purple-600',
+    description: 'Design tokens & styles'
   },
   { 
     name: 'Responsive', 
     href: '/client/responsive', 
     icon: Monitor, 
     badge: null,
-    gradient: 'from-green-500 to-emerald-600' 
+    gradient: 'from-green-500 to-emerald-600',
+    description: 'Multi-device optimization'
   },
   { 
-    name: 'Collaborations', 
+    name: 'Collaboration', 
     href: '/client/chat', 
     icon: MessageSquare, 
     badge: '3',
-    gradient: 'from-yellow-500 to-orange-600' 
+    gradient: 'from-yellow-500 to-orange-600',
+    description: 'Team communication'
   },
   { 
     name: 'Deploy & Host', 
     href: '/client/deploy', 
     icon: Zap, 
     badge: null,
-    gradient: 'from-purple-500 to-pink-600' 
+    gradient: 'from-purple-500 to-pink-600',
+    description: 'Launch your projects'
   },
   { 
     name: 'Performance', 
     href: '/client/performance', 
     icon: Activity, 
     badge: null,
-    gradient: 'from-red-500 to-pink-600' 
+    gradient: 'from-red-500 to-pink-600',
+    description: 'Speed & optimization'
   },
   { 
     name: 'Security', 
     href: '/client/security', 
     icon: Shield, 
     badge: null,
-    gradient: 'from-gray-600 to-gray-800' 
+    gradient: 'from-gray-600 to-gray-800',
+    description: 'Security & compliance'
   },
   { 
     name: 'Backups', 
     href: '/client/backups', 
     icon: Database, 
     badge: null,
-    gradient: 'from-teal-500 to-cyan-600' 
+    gradient: 'from-teal-500 to-cyan-600',
+    description: 'Data protection'
   },
   { 
     name: 'Support', 
     href: '/client/support', 
     icon: LifeBuoy, 
     badge: null,
-    gradient: 'from-orange-500 to-red-600' 
+    gradient: 'from-orange-500 to-red-600',
+    description: '24/7 expert help'
   },
 ];
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthStore();
+  const { theme, setTheme, isDark, toggleTheme } = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [isDark, setIsDark] = React.useState(false);
 
   const handleLogout = async () => {
     await logout();
     navigate('/auth');
   };
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    // You can add theme persistence logic here
-  };
 
   const userInitials = user?.name
     ? user.name
@@ -175,17 +242,20 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     : 'U';
 
   const Sidebar = ({ mobile = false }) => (
-    <div className="flex flex-col h-full">
+    <div className={`flex flex-col h-full ${isDark ? 'sidebar-luxury-dark' : 'sidebar-luxury'}`}>
       {/* Logo Section */}
-      <div className="flex-shrink-0 px-6 py-8">
+      <div className="flex-shrink-0 px-6 py-8 border-b border-border/20">
         <Link to="/client" className="flex items-center space-x-4 group">
           <motion.div 
-            className="relative p-3 rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 shadow-2xl group-hover:scale-110 transition-all duration-300"
+            className="relative p-3 rounded-2xl luxury-gradient shadow-2xl group-hover:scale-110 transition-all duration-500 luxury-glow"
             whileHover={{ rotate: [0, -10, 10, 0] }}
             transition={{ duration: 0.6 }}
           >
-            <Code2 className="h-8 w-8 text-white" />
-            <div className="absolute inset-0 bg-white opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
+            <img 
+              src="/logo.png" 
+              alt="WebNest Icon"
+              className="h-8 w-8 object-cover rounded-sm filter brightness-0 invert"
+            />
           </motion.div>
           <div className="flex flex-col">
             <span className="text-3xl font-black bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 bg-clip-text text-transparent">

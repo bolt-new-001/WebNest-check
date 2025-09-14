@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
+import { ThemeProvider } from '@/providers/ThemeProvider'
 import { LandingPage } from '@/pages/LandingPage'
 import { AuthPage } from '@/pages/AuthPage'
 import { Documentation } from '@/pages/Documentation'
@@ -44,7 +45,8 @@ function App() {
   const { user } = useAuthStore()
 
   return (
-    <Routes>
+    <ThemeProvider>
+      <Routes>
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
@@ -122,7 +124,8 @@ function App() {
 
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </ThemeProvider>
   )
 }
 
