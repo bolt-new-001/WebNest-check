@@ -24,6 +24,11 @@ import ClientBackups from './ClientBackups'
 // import  ClientPackageCustomize from './ClientPackageCustomize'
 
 
+// Template Realated Routes
+import ClientTemplates from './ClientTemplates'
+
+
+
 //Setting Page Routes
 import ChangePasswordPage from './Settings/password-change'
 import { default as TwoFactorAuthPage } from './Settings/TwoFactorAuth'
@@ -74,6 +79,9 @@ export function ClientDashboard() {
         {/* <Route path="/invoices" element={<ClientInvoices />} /> */}
         {/* <Route path="/transactions" element={<ClientTransactions />} /> */}
 
+
+        {/* Template Realated Routes */}
+        <Route path="/templates" element={<ClientTemplates />} />
       
         {/* Extra Routes  */}
         <Route path="/milestone" element={<ClientMilestones />} />
